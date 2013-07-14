@@ -1,6 +1,7 @@
 import requests
 import json
 
+
 class EightTracksAPI:
     def __init__(self):
         self.user_token = None
@@ -11,4 +12,6 @@ class EightTracksAPI:
         params = {'login': login, 'password': password, 'api_key': self.config.get('api_key')}
         response = requests.post('{}sessions.json'.format(self.config.get('service_url')), params=params)
         response.raise_for_status()
-        print(response.text)
+        response_data = json.loads(response.text)
+        self.user_token = response_data.get('user_token')
+        print(response_data)

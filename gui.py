@@ -28,6 +28,8 @@ class Form(QDialog):
                      self.authenticate)
         self.connect(self.passwordedit, SIGNAL("returnPressed()"),
                      self.authenticate)
+        self.connect(self.pushButton, SIGNAL("clicked()"),
+                     self.authenticate)
         self.setWindowTitle("8tracks")
 
     def authenticate(self):
