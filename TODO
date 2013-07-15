@@ -1,4 +1,3 @@
 api_version
-show new window after success login
 show info on success/on error
 save auth data during restarts

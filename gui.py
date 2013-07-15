@@ -6,40 +6,52 @@ from PyQt4.QtGui import *
 import api
 
 
-class Form(QDialog):
-
+class MainWindow(QWidget):
     def __init__(self, parent=None):
-        super(Form, self).__init__(parent)
+        super(MainWindow, self).__init__(parent)
         self.tracks_api = api.EightTracksAPI()
+        self.dialog = LoginForm(self)
+        self.setWindowTitle("8tracks")
+
+    def check_login(self):
+        self.dialog.show()
+
+    def authenticate(self, login, password):
+        self.tracks_api.authenticate(login, password)
+
+
+class LoginForm(QDialog):
+    def __init__(self, parent=None):
+        super(LoginForm, self).__init__(parent)
         loginlabel = QLabel("Enter login")
         self.loginedit = QLineEdit()
         passwordlabel = QLabel("Enter password")
         self.passwordedit = QLineEdit(echoMode=QLineEdit.Password)
-        self.pushButton = QPushButton('Login')
+        self.loginbutton = QPushButton('Login')
         layout = QVBoxLayout()
         layout.addWidget(loginlabel)
         layout.addWidget(self.loginedit)
         layout.addWidget(passwordlabel)
         layout.addWidget(self.passwordedit)
-        layout.addWidget(self.pushButton)
+        layout.addWidget(self.loginbutton)
         self.setLayout(layout)
         self.loginedit.setFocus()
         self.connect(self.loginedit, SIGNAL("returnPressed()"),
-                     self.authenticate)
+                     self.login)
         self.connect(self.passwordedit, SIGNAL("returnPressed()"),
-                     self.authenticate)
-        self.connect(self.pushButton, SIGNAL("clicked()"),
-                     self.authenticate)
-        self.setWindowTitle("8tracks")
+                     self.login)
+        self.loginbutton.clicked.connect(self.login)
+        self.setWindowTitle("Login")
 
-    def authenticate(self):
+    def login(self):
         login = self.loginedit.text()
         password = self.passwordedit.text()
-        self.tracks_api.authenticate(login, password)
+        self.parent().authenticate(login, password)
+        self.hide()
 
-
-
-app = QApplication(sys.argv)
-form = Form()
-form.show()
-app.exec_()
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    window.check_login()
+    sys.exit(app.exec_())
