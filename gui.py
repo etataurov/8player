@@ -14,7 +14,8 @@ class MainWindow(QWidget):
         self.setWindowTitle("8tracks")
 
     def check_login(self):
-        self.dialog.show()
+        if not self.tracks_api.authenticated:
+            self.dialog.show()
 
     def authenticate(self, login, password):
         self.tracks_api.authenticate(login, password)
