@@ -14,4 +14,12 @@ class EightTracksAPI:
         response.raise_for_status()
         response_data = json.loads(response.text)
         self.user_token = response_data.get('user_token')
+        #TODO extract user info
         print(response_data)
+
+    def get_mixes(self):
+        params = {'user_token': self.user_token, 'api_key': self.config.get('api_key')}
+        response = requests.get('{}mixes.json'.format(self.config.get('service_url')), params=params)
+        response.raise_for_status()
+        response_data = json.loads(response.text)
+        return response_data['mixes']

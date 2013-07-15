@@ -38,6 +38,7 @@ class Form(QDialog):
         self.tracks_api.authenticate(login, password)
 
 
+
 app = QApplication(sys.argv)
 form = Form()
 form.show()
