@@ -1,0 +1,35 @@
+{
+    "status": "200 OK", 
+    "errors": null, 
+    "auth_token": "902671;ca11f318586b05f1fc31b41ed17866e20512ed19", 
+    "user_token": "902671;ca11f318586b05f1fc31b41ed17866e20512ed19", 
+    "api_warning": [
+        "You didn't pass an API version, defaulting to api_version=2."
+    ], 
+    "current_user": {
+        "next_mix_prefs": "ask", 
+        "followed_by_current_user": false, 
+        "mobile_safe_browse": true, 
+        "subscribed": false, 
+        "bio_html": "<p></p>", 
+        "web_safe_browse": false, 
+        "popup_prefs": "ask", 
+        "slug": "tataurov", 
+        "avatar_urls": {
+            "max200": "http://8tracks.imgix.net/avatars/000/902/671/32908.original.jpg?fm=jpg&q=65&sharp=15&vib=10&w=200&h=200&fit=max", 
+            "sq100": "http://8tracks.imgix.net/avatars/000/902/671/32908.original.jpg?fm=jpg&q=65&sharp=15&vib=10&w=100&h=100&fit=crop", 
+            "sq56": "http://8tracks.imgix.net/avatars/000/902/671/32908.original.jpg?fm=jpg&q=65&sharp=15&vib=10&w=56&h=56&fit=crop", 
+            "max250w": "http://8tracks.imgix.net/avatars/000/902/671/32908.original.jpg?fm=jpg&q=65&sharp=15&vib=10&w=250&h=250&fit=max", 
+            "sq72": "http://8tracks.imgix.net/avatars/000/902/671/32908.original.jpg?fm=jpg&q=65&sharp=15&vib=10&w=72&h=72&fit=crop", 
+            "original": "http://8tracks.imgix.net/avatars/000/902/671/32908.original.jpg?fm=jpg&q=65&sharp=15&vib=10&"
+        }, 
+        "location": "Yekaterinburg, Sverdlovskaya obl., Russian Federation", 
+        "path": "/tataurov", 
+        "login": "tataurov", 
+        "id": 902671, 
+        "follows_count": 6
+    }, 
+    "notices": "You are now logged in as tataurov", 
+    "logged_in": true, 
+    "api_version": 2
+}
