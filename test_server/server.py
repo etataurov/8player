@@ -4,7 +4,9 @@ import os
 import datetime
 
 FILES_DIR = '/home/etataurov/test'
+PLAY_TOKEN = '12345'
 
+# TODO check api_key and user token in every request
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -22,6 +24,19 @@ class MainHandler(tornado.web.RequestHandler):
             self.finish(sessions.read())
         print("successfully send")
 
+
+class SetsHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.write("""{"status": "200 OK", "errors": null, "api_version": 2, "api_warning": ["You didn't pass an API version, defaulting to api_version=2."], "notices": null, "play_token": "%s"}""" % PLAY_TOKEN)
+        self.finish()
+
+
+class PlayHandler(tornado.web.RequestHandler):
+    def get(self):
+        mix_id = self.get_argument('mix_id')
+        self.set_header("Content-Type", 'application/json; charset=utf-8')
+        with open('play.json') as play:
+            self.finish(play.read())
 
 class FileHandler(tornado.web.RequestHandler):
     def get(self, object_name):
@@ -42,6 +57,8 @@ class FileHandler(tornado.web.RequestHandler):
 application = tornado.web.Application([
     (r"/sessions.json", MainHandler),
     (r"/mixes.json", MainHandler),
+    (r"/sets/new.json", SetsHandler),
+    (r"/sets/%s/play.json" % PLAY_TOKEN, PlayHandler),
     (r"/(.+)", FileHandler),
 
 ], debug=True)

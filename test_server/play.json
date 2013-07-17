@@ -1,0 +1,30 @@
+{
+    "status": "200 OK", 
+    "set": {
+        "at_last_track": false, 
+        "track": {
+            "performer": "Paramore", 
+            "name": "Anklebiters", 
+            "url": "http://127.0.0.1:8888/ashley.mp3", 
+            "play_duration": 137, 
+            "stream_source": "match_sc", 
+            "buy_icon": "http://8tracks.com/assets/buy/soundcloud.png", 
+            "you_tube_id": "K0RcGJlGbJw", 
+            "buy_link": "http://soundcloud.com/yelyah_williams/anklebiters", 
+            "year": 2013, 
+            "you_tube_status": "ok", 
+            "faved_by_current_user": false, 
+            "release_name": "Paramore", 
+            "id": 16588480
+        }, 
+        "at_end": false, 
+        "skip_allowed": true, 
+        "at_beginning": true
+    }, 
+    "errors": null, 
+    "api_warning": [
+        "You didn't pass an API version, defaulting to api_version=2."
+    ], 
+    "notices": "", 
+    "api_version": 2
+}

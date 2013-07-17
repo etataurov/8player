@@ -3,6 +3,7 @@ import json
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
+log = logging.getLogger(__name__)
 
 
 class EightTracksAPI:
@@ -28,6 +29,7 @@ class EightTracksAPI:
         response = requests.request(method, url, **request_dict)
         response.raise_for_status()
         response_data = json.loads(response.text)
+        log.debug(response_data)
         return response_data
 
     def authenticate(self, login, password):
@@ -36,7 +38,6 @@ class EightTracksAPI:
         self.config['user_token'] = response_data.get('user_token')
         with open(self.CONFIG_PATH, 'w') as conf:
             json.dump(self.config, conf, indent=4)
-        print(response_data)
 
     @property
     def authenticated(self):
@@ -48,16 +49,14 @@ class EightTracksAPI:
         return response_data['mixes']
 
     def _get_play_token(self):
-        url = self.config.get('user_token')
-        response_data = self._request(url)
+        response_data = self._request('sets/new.json')
         self.play_token = response_data.get('play_token')
 
     def get_mixes(self):
-        # self._get_play_token()
+        self._get_play_token()
         return [Mix(x, self) for x in self._get_mixes()]
 
     def play_mix(self, mix_id):
-        return 'http://127.0.0.1:8888/batman-batman.mp3'
         params = {'mix_id': mix_id}
         response_data = self._request('sets/{}/play.json'.format(self.play_token), params)
         return response_data.get('set').get('track').get('url')
