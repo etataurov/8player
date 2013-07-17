@@ -9,4 +9,4 @@ do it with tabs: mixes, current, search
 minimalistic UI
 logging
 [0x9ff3f38] main services discovery error: no suitable services discovery module
-async using QT(less likely), api thread or integrate with tornado?
+async using QT(less likely), api thread or integrate with tornado? or grequests?

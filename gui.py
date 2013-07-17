@@ -159,7 +159,7 @@ class MainWindow(QtGui.QMainWindow):
         descrItem = QtGui.QTableWidgetItem(mix.description)
         descrItem.setFlags(descrItem.flags() ^ QtCore.Qt.ItemIsEditable)
 
-        countItem = QtGui.QTableWidgetItem(mix.tracks_count)
+        countItem = QtGui.QTableWidgetItem(str(mix.tracks_count))
         countItem.setFlags(countItem.flags() ^ QtCore.Qt.ItemIsEditable)
 
         userItem = QtGui.QTableWidgetItem(mix.user)
@@ -188,7 +188,8 @@ class MainWindow(QtGui.QMainWindow):
         try:
             self.tracks_api.authenticate(login, password)
         except Exception:
-            pass
+            # TODO handle
+            raise
         else:
             self.show_mixes()
 

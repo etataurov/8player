@@ -1,5 +1,8 @@
 import requests
 import json
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 class EightTracksAPI:
@@ -11,8 +14,9 @@ class EightTracksAPI:
             self.config = json.load(conf)
 
     def authenticate(self, login, password):
-        params = {'login': login, 'password': password, 'api_key': self.config.get('api_key')}
-        response = requests.post('{}sessions.json'.format(self.config.get('service_url')), params=params)
+        params = {'api_key': self.config.get('api_key')}
+        data = {'login': login, 'password': password}
+        response = requests.post('{}sessions.json'.format(self.config.get('service_url')), data=data, params=params)
         response.raise_for_status()
         response_data = json.loads(response.text)
         self.config['user_token'] = response_data.get('user_token')
@@ -40,10 +44,11 @@ class EightTracksAPI:
         self.play_token = response_data.get('play_token')
 
     def get_mixes(self):
-        self._get_play_token()
+        # self._get_play_token()
         return [Mix(x, self) for x in self._get_mixes()]
 
     def play_mix(self, mix_id):
+        return 'http://127.0.0.1:8888/batman-batman.mp3'
         params = {'user_token': self.config.get('user_token'), 'api_key': self.config.get('api_key'), 'mix_id': mix_id}
         response = requests.get('{}sets/{}/play.json'.format(self.config.get('service_url'), self.play_token), params=params)
         response.raise_for_status()
