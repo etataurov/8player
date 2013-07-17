@@ -59,7 +59,7 @@ class EightTracksAPI:
     def play_mix(self, mix_id):
         params = {'mix_id': mix_id}
         response_data = self._request('sets/{}/play.json'.format(self.play_token), params)
-        return response_data.get('set').get('track').get('url')
+        return response_data.get('set').get('track')
 
 
 class Mix:
@@ -72,11 +72,8 @@ class Mix:
         self.user = params.get('user').get('login')
 
     def play(self):
-        """
-        Should return just url to first track
-        + some meta-info
-        """
-        return self.api.play_mix(self.id)
+        track = Track(self.api.play_mix(self.id))
+        return track
 
 
     def next(self):
@@ -94,3 +91,13 @@ class Mix:
 
     def send_30_sec(self):
         pass
+
+class Track:
+    def __init__(self, params):
+        self.id = params.get('id')
+        self.url = params.get('url')
+        self.performer = params.get('performer')
+        self.name = params.get('name')
+
+    def get_title(self):
+        return "{} - {}".format(self.performer, self.name)

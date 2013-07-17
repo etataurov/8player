@@ -18,6 +18,8 @@ class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.tracks_api = api.EightTracksAPI()
+        self.current_track = None
+        self.current_mix = None
         self.dialog = LoginForm(self)
         #TODO music buttons
         self.audioOutput = Phonon.AudioOutput(Phonon.MusicCategory, self)
@@ -120,7 +122,10 @@ class MainWindow(QtGui.QMainWindow):
         self.setWindowTitle("8tracks music player")
 
     def tick(self, time):
-        displayTime = QtCore.QTime(0, (time / 60000) % 60, (time / 1000) % 60)
+        seconds = (time / 1000) % 60
+        # TODO why tick is doubling?
+        # TODO report
+        displayTime = QtCore.QTime(0, (time / 60000) % 60, seconds)
         self.timeLcd.display(displayTime.toString('mm:ss'))
 
     def setupActions(self):
@@ -173,7 +178,10 @@ class MainWindow(QtGui.QMainWindow):
         self.musicTable.setItem(currentRow, 3, userItem)
 
     def tableClicked(self, row, column):
-        source = Phonon.MediaSource(QtCore.QUrl(self.mixes[row].play()))
+        mix = self.current_mix = self.mixes[row]
+        track = self.current_track = mix.play()
+        self.current_track_label.setText(track.get_title())
+        source = Phonon.MediaSource(QtCore.QUrl(track.url))
         self.mediaObject.setCurrentSource(source)
         self.mediaObject.play()
 
