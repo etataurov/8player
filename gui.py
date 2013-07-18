@@ -11,17 +11,18 @@ except ImportError:
             QtGui.QMessageBox.Ok | QtGui.QMessageBox.Default,
             QtGui.QMessageBox.NoButton)
     sys.exit(1)
-import api
+from wrapper import TracksAPIThread
 
 
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
-        self.tracks_api = api.EightTracksAPI()
+        self.api_thread = TracksAPIThread()
+        self.api_thread.start()
         self.current_track = None
         self.current_mix = None
         self.dialog = LoginForm(self)
-        #TODO music buttons
+
         self.audioOutput = Phonon.AudioOutput(Phonon.MusicCategory, self)
         self.mediaObject = Phonon.MediaObject(self)
 
@@ -31,6 +32,10 @@ class MainWindow(QtGui.QMainWindow):
         self.mediaObject.stateChanged.connect(self.stateChanged)
 
         Phonon.createPath(self.mediaObject, self.audioOutput)
+
+        self.api_thread.mixes_ready.connect(self.show_mixes)
+        self.api_thread.authenticated.connect(self.on_authenticated)
+        self.api_thread.track_ready.connect(self.play_track)
 
         self.setupActions()
         self.setupUi()
@@ -179,30 +184,30 @@ class MainWindow(QtGui.QMainWindow):
 
     def tableClicked(self, row, column):
         mix = self.current_mix = self.mixes[row]
-        track = self.current_track = mix.play()
+        mix.play()
+
+    def play_track(self, track):
+        self.current_track = track
         self.current_track_label.setText(track.get_title())
         source = Phonon.MediaSource(QtCore.QUrl(track.url))
         self.mediaObject.setCurrentSource(source)
         self.mediaObject.play()
 
-
     def check_login(self):
-        if not self.tracks_api.authenticated:
+        if not self.api_thread.is_authenticated():
             self.dialog.show()
         else:
-            self.show_mixes()
+            self.api_thread.request_mixes()
 
     def authenticate(self, login, password):
-        try:
-            self.tracks_api.authenticate(login, password)
-        except Exception:
-            # TODO handle
-            raise
-        else:
-            self.show_mixes()
+        #TODO handle auth errors
+        self.api_thread.authenticate(login, password)
 
-    def show_mixes(self):
-        self.mixes = self.tracks_api.get_mixes()
+    def on_authenticated(self):
+        self.api_thread.request_mixes()
+
+    def show_mixes(self, mixes):
+        self.mixes = mixes
         for mix in self.mixes:
             self.addMixToTable(mix)
 

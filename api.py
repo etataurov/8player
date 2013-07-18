@@ -54,50 +54,9 @@ class EightTracksAPI:
 
     def get_mixes(self):
         self._get_play_token()
-        return [Mix(x, self) for x in self._get_mixes()]
+        return self._get_mixes()
 
     def play_mix(self, mix_id):
         params = {'mix_id': mix_id}
         response_data = self._request('sets/{}/play.json'.format(self.play_token), params)
         return response_data.get('set').get('track')
-
-
-class Mix:
-    def __init__(self, params, api):
-        self.api = api
-        self.id = params.get('id')
-        self.name = params.get('name')
-        self.description = params.get('description')
-        self.tracks_count = params.get('tracks_count')
-        self.user = params.get('user').get('login')
-
-    def play(self):
-        track = Track(self.api.play_mix(self.id))
-        return track
-
-
-    def next(self):
-        """
-        same as play
-        maybe dont separate them
-        """
-        pass
-
-    def skip(self):
-        """
-        also checks that skip is possible
-        """
-        pass
-
-    def send_30_sec(self):
-        pass
-
-class Track:
-    def __init__(self, params):
-        self.id = params.get('id')
-        self.url = params.get('url')
-        self.performer = params.get('performer')
-        self.name = params.get('name')
-
-    def get_title(self):
-        return "{} - {}".format(self.performer, self.name)
