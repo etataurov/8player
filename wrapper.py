@@ -18,11 +18,7 @@ class Mix:
         self.api_thread.play_mix(self.id)
 
     def next(self):
-        """
-        same as play
-        maybe dont separate them
-        """
-        pass
+        self.api_thread.next_track(self.id)
 
     def skip(self):
         """
@@ -53,6 +49,7 @@ class Track:
 class TracksAPIThread(QtCore.QThread):
     mixes_ready = QtCore.pyqtSignal(list)
     track_ready = QtCore.pyqtSignal(Track)
+    next_track_ready = QtCore.pyqtSignal(Track)
     authenticated = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
@@ -80,6 +77,13 @@ class TracksAPIThread(QtCore.QThread):
             self.track_ready.emit(track)
 
         self.request_queue.put((self.tracks_api.play_mix, [mix_id], callback))
+
+    def next_track(self, mix_id):
+        def callback(params):
+            track = Track(params, self)
+            self.next_track_ready.emit(track)
+
+        self.request_queue.put((self.tracks_api.next_track, [mix_id], callback))
 
     def report_track(self, track, mix_id):
         self.request_queue.put((self.tracks_api.report_track, [track.id, mix_id], None))

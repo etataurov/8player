@@ -2,9 +2,11 @@ import tornado.ioloop
 import tornado.web
 import os
 import datetime
+import random
 
 FILES_DIR = '/home/etataurov/test'
 PLAY_TOKEN = '12345'
+TRACKS = ['ashley', 'about_a_girl', 'brand_new_day']
 
 # TODO check api_key and user token in every request
 
@@ -36,7 +38,7 @@ class PlayHandler(tornado.web.RequestHandler):
         mix_id = self.get_argument('mix_id')
         self.set_header("Content-Type", 'application/json; charset=utf-8')
         with open('play.json') as play:
-            self.finish(play.read())
+            self.finish(play.read() % random.choice(TRACKS))
 
 
 class ReportHandler(tornado.web.RequestHandler):
@@ -66,6 +68,7 @@ application = tornado.web.Application([
     (r"/mixes.json", MainHandler),
     (r"/sets/new.json", SetsHandler),
     (r"/sets/%s/play.json" % PLAY_TOKEN, PlayHandler),
+    (r"/sets/%s/next.json" % PLAY_TOKEN, PlayHandler),
     (r"/sets/%s/report.json" % PLAY_TOKEN, ReportHandler),
     (r"/(.+)", FileHandler),
 

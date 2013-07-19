@@ -20,6 +20,7 @@ class MainWindow(QtGui.QMainWindow):
         self.api_thread = TracksAPIThread()
         self.api_thread.start()
         self.current_track = None
+        self.next_track = None
         self.current_mix = None
         self.dialog = LoginForm(self)
 
@@ -31,12 +32,14 @@ class MainWindow(QtGui.QMainWindow):
         self.mediaObject.setTickInterval(1000)
         self.mediaObject.tick.connect(self.tick)
         self.mediaObject.stateChanged.connect(self.stateChanged)
+        self.mediaObject.currentSourceChanged.connect(self.sourceChanged)
 
         Phonon.createPath(self.mediaObject, self.audioOutput)
 
         self.api_thread.mixes_ready.connect(self.show_mixes)
         self.api_thread.authenticated.connect(self.on_authenticated)
         self.api_thread.track_ready.connect(self.play_track)
+        self.api_thread.next_track_ready.connect(self.enqueue_track)
 
         self.setupActions()
         self.setupUi()
@@ -65,6 +68,15 @@ class MainWindow(QtGui.QMainWindow):
             self.pauseAction.setEnabled(False)
             self.stopAction.setEnabled(True)
             self.playAction.setEnabled(True)
+
+    def sourceChanged(self, source):
+        if self.next_track is not None:
+            self.current_track = self.next_track
+            self.next_track = None
+        self.current_track_label.setText(self.current_track.get_title())
+        self.timeLcd.display('00:00')
+        # we going to preload next track url right here
+        self.current_mix.next()
 
     def sizeHint(self):
         return QtCore.QSize(500, 300)
@@ -129,8 +141,11 @@ class MainWindow(QtGui.QMainWindow):
 
     def tick(self, time):
         seconds = (time / 1000) % 60
-        # TODO why tick is doubling?
+        # TODO seconds may be 30 more than once!
+        # really its done now because we report only once
+        # make it more explicit
         if int(seconds) == 30:
+            # with phonon-backend-vlc tick is doubling
             # so it maybe called more than once
             self.current_track.report(self.current_mix.id)
         displayTime = QtCore.QTime(0, (time / 60000) % 60, seconds)
@@ -185,16 +200,23 @@ class MainWindow(QtGui.QMainWindow):
         self.musicTable.setItem(currentRow, 2, countItem)
         self.musicTable.setItem(currentRow, 3, userItem)
 
+
     def tableClicked(self, row, column):
+        self.mediaObject.stop()
+        self.mediaObject.clearQueue()
         mix = self.current_mix = self.mixes[row]
         mix.play()
 
     def play_track(self, track):
         self.current_track = track
-        self.current_track_label.setText(track.get_title())
         source = Phonon.MediaSource(QtCore.QUrl(track.url))
         self.mediaObject.setCurrentSource(source)
         self.mediaObject.play()
+
+    def enqueue_track(self, track):
+        self.next_track = track
+        source = Phonon.MediaSource(QtCore.QUrl(track.url))
+        self.mediaObject.enqueue(source)
 
     def check_login(self):
         if not self.api_thread.is_authenticated():

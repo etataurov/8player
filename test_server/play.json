@@ -5,7 +5,7 @@
         "track": {
             "performer": "Paramore", 
             "name": "Anklebiters", 
-            "url": "http://127.0.0.1:8888/ashley.mp3", 
+            "url": "http://127.0.0.1:8888/%s.mp3", 
             "play_duration": 137, 
             "stream_source": "match_sc", 
             "buy_icon": "http://8tracks.com/assets/buy/soundcloud.png", 

@@ -62,6 +62,11 @@ class EightTracksAPI:
         response_data = self._request('sets/{}/play.json'.format(self.play_token), params)
         return response_data.get('set').get('track')
 
+    def next_track(self, mix_id):
+        params = {'mix_id': mix_id}
+        response_data = self._request('sets/{}/next.json'.format(self.play_token), params)
+        return response_data.get('set').get('track')
+
     def report_track(self, track_id, mix_id):
         params = {'track_id': track_id, 'mix_id': mix_id}
         self._request('sets/{}/report.json'.format(self.play_token), params)
