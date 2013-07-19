@@ -8,7 +8,8 @@ do it with tabs: mixes, current, search
 minimalistic UI
 logging
 [0x9ff3f38] main services discovery error: no suitable services discovery module
-dont start new connections
 report on 30 sec (should be async 100%!)
 show that we are waiting for smth
 refactor maybe
+slider to the beginning on stop
+think about thread stopping right

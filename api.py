@@ -11,6 +11,7 @@ class EightTracksAPI:
 
     def __init__(self):
         self.play_token = None #maybe also have in config?
+        self.session = requests.Session()
         with open(self.CONFIG_PATH) as conf:
             self.config = json.load(conf)
 
@@ -26,7 +27,7 @@ class EightTracksAPI:
         else:
             request_params.update(params)
             request_dict = dict(params=request_params)
-        response = requests.request(method, url, **request_dict)
+        response = self.session.request(method, url, **request_dict)
         response.raise_for_status()
         response_data = json.loads(response.text)
         log.debug(response_data)
