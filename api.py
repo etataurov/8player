@@ -30,7 +30,7 @@ class EightTracksAPI:
         response = self.session.request(method, url, **request_dict)
         response.raise_for_status()
         response_data = json.loads(response.text)
-        log.debug(response_data)
+        log.debug(response_data)  # TODO proto level
         return response_data
 
     def authenticate(self, login, password):
@@ -61,3 +61,7 @@ class EightTracksAPI:
         params = {'mix_id': mix_id}
         response_data = self._request('sets/{}/play.json'.format(self.play_token), params)
         return response_data.get('set').get('track')
+
+    def report_track(self, track_id, mix_id):
+        params = {'track_id': track_id, 'mix_id': mix_id}
+        self._request('sets/{}/report.json'.format(self.play_token), params)

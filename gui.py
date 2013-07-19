@@ -26,8 +26,9 @@ class MainWindow(QtGui.QMainWindow):
         self.audioOutput = Phonon.AudioOutput(Phonon.MusicCategory, self)
         self.mediaObject = Phonon.MediaObject(self)
 
+        # this tick interval somehow dont working
+        # it ticks more than once in a second
         self.mediaObject.setTickInterval(1000)
-
         self.mediaObject.tick.connect(self.tick)
         self.mediaObject.stateChanged.connect(self.stateChanged)
 
@@ -129,7 +130,9 @@ class MainWindow(QtGui.QMainWindow):
     def tick(self, time):
         seconds = (time / 1000) % 60
         # TODO why tick is doubling?
-        # TODO report
+        if int(seconds) == 30:
+            # so it maybe called more than once
+            self.current_track.report(self.current_mix.id)
         displayTime = QtCore.QTime(0, (time / 60000) % 60, seconds)
         self.timeLcd.display(displayTime.toString('mm:ss'))
 

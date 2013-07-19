@@ -38,6 +38,13 @@ class PlayHandler(tornado.web.RequestHandler):
         with open('play.json') as play:
             self.finish(play.read())
 
+
+class ReportHandler(tornado.web.RequestHandler):
+    def get(self):
+        mix_id = self.get_argument('mix_id')
+        self.finish({'status': "200 OK"})
+
+
 class FileHandler(tornado.web.RequestHandler):
     def get(self, object_name):
         path = os.path.join(FILES_DIR, object_name)
@@ -59,6 +66,7 @@ application = tornado.web.Application([
     (r"/mixes.json", MainHandler),
     (r"/sets/new.json", SetsHandler),
     (r"/sets/%s/play.json" % PLAY_TOKEN, PlayHandler),
+    (r"/sets/%s/report.json" % PLAY_TOKEN, ReportHandler),
     (r"/(.+)", FileHandler),
 
 ], debug=True)

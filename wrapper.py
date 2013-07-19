@@ -30,19 +30,24 @@ class Mix:
         """
         pass
 
-    def send_30_sec(self):
-        pass
-
 
 class Track:
-    def __init__(self, params):
+    def __init__(self, params, api_thread):
+        self.api_thread = api_thread
         self.id = params.get('id')
         self.url = params.get('url')
         self.performer = params.get('performer')
         self.name = params.get('name')
+        self.reported = False
 
     def get_title(self):
         return "{} - {}".format(self.performer, self.name)
+
+    def report(self, mix_id):
+        if not self.reported:
+            self.api_thread.report_track(self, mix_id)
+            # TODO we should be sure that we are reported
+            self.reported = True
 
 
 class TracksAPIThread(QtCore.QThread):
@@ -71,10 +76,13 @@ class TracksAPIThread(QtCore.QThread):
 
     def play_mix(self, mix_id):
         def callback(params):
-            track = Track(params)
+            track = Track(params, self)
             self.track_ready.emit(track)
 
         self.request_queue.put((self.tracks_api.play_mix, [mix_id], callback))
+
+    def report_track(self, track, mix_id):
+        self.request_queue.put((self.tracks_api.report_track, [track.id, mix_id], None))
 
     def is_authenticated(self):
         return self.tracks_api.authenticated
@@ -92,5 +100,5 @@ class TracksAPIThread(QtCore.QThread):
                         action.emit()
                     else:
                         action.emit(resp)
-                else:
+                elif action is not None:
                     action(resp)
