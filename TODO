@@ -1,4 +1,3 @@
-api_version
 show info on success/on error
 logout
 TESTS!!!!!!
@@ -7,7 +6,6 @@ when mix is playing - show only this mix info
 do it with tabs: mixes, current, search
 minimalistic UI
 logging
-[0x9ff3f38] main services discovery error: no suitable services discovery module
 show that we are waiting for smth
 refactor maybe
 slider to the beginning on stop
@@ -16,3 +14,4 @@ errbacks? dont think that we should implement this (find some suitable lib)
 there is BUG with phonon-backend-vlc: tracks from queue dont play
 make track not seekable or make it working
 remove stop button
+preload next track after mix finished

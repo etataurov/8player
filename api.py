@@ -5,6 +5,8 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 
+API_VERSION = 2
+
 
 class EightTracksAPI:
     CONFIG_PATH = 'config.json'
@@ -19,7 +21,7 @@ class EightTracksAPI:
         if params is None:
             params = {}
         url = '{}{}'.format(self.config.get('service_url'), filename)
-        request_params = {'api_key': self.config.get('api_key')}
+        request_params = {'api_key': self.config.get('api_key'), 'api_version': API_VERSION}
         if self.authenticated:
             request_params['user_token'] = self.config.get('user_token')
         if method == 'POST':
