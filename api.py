@@ -12,12 +12,11 @@ API_VERSION = 2
 
 
 class EightTracksAPI:
-    CONFIG_PATH = 'config.json'
-
-    def __init__(self):
+    def __init__(self, config_filename):
         self.play_token = None #maybe also have in config?
+        self.config_filename = config_filename
         self.session = requests.Session()
-        with open(self.CONFIG_PATH) as conf:
+        with open(self.config_filename) as conf:
             self.config = json.load(conf)
 
     def _request(self, filename, params=None, method='GET'):
@@ -42,7 +41,7 @@ class EightTracksAPI:
         data = {'login': login, 'password': password}
         response_data = self._request('sessions.json', data, method='POST')
         self.config['user_token'] = response_data.get('user_token')
-        with open(self.CONFIG_PATH, 'w') as conf:
+        with open(self.config_filename, 'w') as conf:
             json.dump(self.config, conf, indent=4)
 
     @property

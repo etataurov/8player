@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import argparse
 from PyQt4 import QtCore, QtGui
 try:
     from PyQt4.phonon import Phonon
@@ -15,9 +16,9 @@ from wrapper import TracksAPIThread
 
 
 class MainWindow(QtGui.QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config_filename=None):
         super(MainWindow, self).__init__(parent)
-        self.api_thread = TracksAPIThread()
+        self.api_thread = TracksAPIThread(config_filename=config_filename)
         self.api_thread.start()
         self.current_track = None
         self.next_track = None
@@ -257,11 +258,14 @@ class LoginForm(QtGui.QDialog):
         self.hide()
 
 if __name__ == '__main__':
-    app = QtGui.QApplication(sys.argv)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--config", default="config.json", help="path to config file")
+    args = parser.parse_args()
 
+    app = QtGui.QApplication(sys.argv)
     app.setApplicationName("8tracks Music Player")
     app.setQuitOnLastWindowClosed(True)
-    window = MainWindow()
+    window = MainWindow(config_filename=args.config)
     window.show()
     window.check_login()
     sys.exit(app.exec_())

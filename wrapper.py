@@ -52,9 +52,9 @@ class TracksAPIThread(QtCore.QThread):
     next_track_ready = QtCore.pyqtSignal(Track)
     authenticated = QtCore.pyqtSignal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config_filename=None):
         super(TracksAPIThread, self).__init__(parent)
-        self.tracks_api = api.EightTracksAPI()
+        self.tracks_api = api.EightTracksAPI(config_filename)
         self.request_queue = Queue()
 
     def __del__(self):
