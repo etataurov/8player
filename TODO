@@ -8,10 +8,8 @@ minimalistic UI
 logging
 show that we are waiting for smth
 refactor maybe
-slider to the beginning on stop
 think about thread stopping right
 errbacks? dont think that we should implement this (find some suitable lib)
 there is BUG with phonon-backend-vlc: tracks from queue dont play
 make track not seekable or make it working
-remove stop button
 preload next track after mix finished

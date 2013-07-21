@@ -56,17 +56,14 @@ class MainWindow(QtGui.QMainWindow):
         elif newState == Phonon.PlayingState:
             self.playAction.setEnabled(False)
             self.pauseAction.setEnabled(True)
-            self.stopAction.setEnabled(True)
 
         elif newState == Phonon.StoppedState:
-            self.stopAction.setEnabled(False)
             self.playAction.setEnabled(True)
             self.pauseAction.setEnabled(False)
             self.timeLcd.display("00:00")
 
         elif newState == Phonon.PausedState:
             self.pauseAction.setEnabled(False)
-            self.stopAction.setEnabled(True)
             self.playAction.setEnabled(True)
 
     def sourceChanged(self, source):
@@ -86,7 +83,6 @@ class MainWindow(QtGui.QMainWindow):
 
         bar.addAction(self.playAction)
         bar.addAction(self.pauseAction)
-        bar.addAction(self.stopAction)
 
         self.seekSlider = Phonon.SeekSlider(self)
         self.seekSlider.setMediaObject(self.mediaObject)
@@ -162,12 +158,6 @@ class MainWindow(QtGui.QMainWindow):
             self.style().standardIcon(QtGui.QStyle.SP_MediaPause),
             "Pause", self, shortcut="Ctrl+A", enabled=False,
             triggered=self.mediaObject.pause
-        )
-
-        self.stopAction = QtGui.QAction(
-            self.style().standardIcon(QtGui.QStyle.SP_MediaStop), "Stop",
-            self, shortcut="Ctrl+S", enabled=False,
-            triggered=self.mediaObject.stop
         )
 
         self.nextAction = QtGui.QAction(
