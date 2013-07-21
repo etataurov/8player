@@ -1,5 +1,8 @@
 import requests
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
@@ -32,7 +35,7 @@ class EightTracksAPI:
         response = self.session.request(method, url, **request_dict)
         response.raise_for_status()
         response_data = json.loads(response.text)
-        log.debug(response_data)  # TODO proto level
+        log.debug(json.dumps(response_data, indent=2))
         return response_data
 
     def authenticate(self, login, password):
