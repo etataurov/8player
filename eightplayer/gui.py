@@ -255,6 +255,7 @@ class LoginForm(QtGui.QDialog):
         login = self.loginedit.text()
         password = self.passwordedit.text()
         self.parent().authenticate(login, password)
+        # TODO hide only after success
         self.hide()
 
 if __name__ == '__main__':
