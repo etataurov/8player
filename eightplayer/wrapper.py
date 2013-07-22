@@ -1,6 +1,6 @@
 from queue import Queue
 from PyQt4 import QtCore
-import api
+from . import api
 
 STOP = object()
 

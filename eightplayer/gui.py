@@ -12,7 +12,7 @@ except ImportError:
             QtGui.QMessageBox.Ok | QtGui.QMessageBox.Default,
             QtGui.QMessageBox.NoButton)
     sys.exit(1)
-from wrapper import TracksAPIThread
+from .wrapper import TracksAPIThread
 
 
 class MainWindow(QtGui.QMainWindow):
