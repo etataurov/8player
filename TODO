@@ -11,5 +11,6 @@ refactor maybe
 think about thread stopping right
 errbacks? dont think that we should implement this (find some suitable lib)
 there is BUG with phonon-backend-vlc: tracks from queue dont play
-make track not seekable or make it working
+make track not seekable or make it working (on mac it works(QuickTime player backend))
 preload next track after mix finished
+catch hotkeys
