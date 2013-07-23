@@ -51,6 +51,7 @@ class TracksAPIThread(QtCore.QThread):
     track_ready = QtCore.pyqtSignal(Track)
     next_track_ready = QtCore.pyqtSignal(Track)
     authenticated = QtCore.pyqtSignal()
+    authentication_fail = QtCore.pyqtSignal()
 
     def __init__(self, parent=None, config_filename=None):
         super(TracksAPIThread, self).__init__(parent)
@@ -69,7 +70,13 @@ class TracksAPIThread(QtCore.QThread):
         self.request_queue.put((self.tracks_api.get_mixes, [], callback))
 
     def authenticate(self, login, password):
-        self.request_queue.put((self.tracks_api.authenticate, [login, password], self.authenticated))
+        self.request_queue.put(
+            (
+                self.tracks_api.authenticate,
+                [login, password],
+                (self.authenticated, self.authentication_fail)
+            )
+        )
 
     def play_mix(self, mix_id):
         def callback(params):
@@ -97,8 +104,18 @@ class TracksAPIThread(QtCore.QThread):
             if data is STOP:
                 return
             else:
+                errback = None
                 func, args, action = data
-                resp = func(*args)
+                if isinstance(action, tuple):
+                    action, errback = action
+                try:
+                    resp = func(*args)
+                except Exception:
+                    if errback is not None:
+                        errback.emit()
+                        continue
+                    # TODO handle any exception
+                    raise
                 if isinstance(action, QtCore.pyqtBoundSignal):
                     if resp is None:
                         action.emit()

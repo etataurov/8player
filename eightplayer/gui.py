@@ -39,6 +39,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.api_thread.mixes_ready.connect(self.show_mixes)
         self.api_thread.authenticated.connect(self.on_authenticated)
+        self.api_thread.authentication_fail.connect(self.dialog.show_error)
         self.api_thread.track_ready.connect(self.play_track)
         self.api_thread.next_track_ready.connect(self.enqueue_track)
 
@@ -232,12 +233,15 @@ class MainWindow(QtGui.QMainWindow):
 class LoginForm(QtGui.QDialog):
     def __init__(self, parent=None):
         super(LoginForm, self).__init__(parent)
+        self.errorlabel = QtGui.QLabel("ERROR: Wrong credentials")
+        self.errorlabel.hide()
         loginlabel = QtGui.QLabel("Enter login")
         self.loginedit = QtGui.QLineEdit()
         passwordlabel = QtGui.QLabel("Enter password")
         self.passwordedit = QtGui.QLineEdit(echoMode=QtGui.QLineEdit.Password)
         self.loginbutton = QtGui.QPushButton('Login')
         layout = QtGui.QVBoxLayout()
+        layout.addWidget(self.errorlabel)
         layout.addWidget(loginlabel)
         layout.addWidget(self.loginedit)
         layout.addWidget(passwordlabel)
@@ -256,6 +260,9 @@ class LoginForm(QtGui.QDialog):
         login = self.loginedit.text()
         password = self.passwordedit.text()
         self.parent().authenticate(login, password)
+
+    def show_error(self):
+        self.errorlabel.show()
 
 
 if __name__ == '__main__':
