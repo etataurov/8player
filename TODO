@@ -14,3 +14,5 @@ there is BUG with phonon-backend-vlc: tracks from queue dont play
 make track not seekable or make it working (on mac it works(QuickTime player backend))
 preload next track after mix finished
 catch hotkeys
+load more mixes on scroll
+search by tags (with autocomplete)
