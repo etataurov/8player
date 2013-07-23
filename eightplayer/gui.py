@@ -220,6 +220,7 @@ class MainWindow(QtGui.QMainWindow):
         self.api_thread.authenticate(login, password)
 
     def on_authenticated(self):
+        self.dialog.hide()
         self.api_thread.request_mixes()
 
     def show_mixes(self, mixes):
@@ -255,8 +256,7 @@ class LoginForm(QtGui.QDialog):
         login = self.loginedit.text()
         password = self.passwordedit.text()
         self.parent().authenticate(login, password)
-        # TODO hide only after success
-        self.hide()
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

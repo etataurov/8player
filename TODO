@@ -16,3 +16,4 @@ preload next track after mix finished
 catch hotkeys
 load more mixes on scroll
 search by tags (with autocomplete)
+catch errors in wrapper
