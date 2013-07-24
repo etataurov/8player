@@ -29,6 +29,7 @@ class TestTrackGUI:
         QTest.mouseClick(self.form.dialog.loginbutton, QtCore.Qt.LeftButton)
         QTest.qWait(1000)
         assert not self.form.dialog.isVisible()
+        assert self.form.api_thread.is_authenticated()
 
     def test_login_fail(self):
         self.form.dialog.loginedit.setText('user1')
