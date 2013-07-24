@@ -15,21 +15,10 @@ class TestTrackGUI:
         with open(TEST_CONFIG_PATH, 'w') as conf:
             json.dump(TEST_CONFIG, conf, indent=4)
         self.form = MainWindow(config_filename=TEST_CONFIG_PATH)
-        self.form.show()
         # TODO call check_login automatically
         self.form.check_login()
 
-    def teardown_method(self, method):
-        # if we set self.app = None, py.test aborts
-        self.form = None
-
-    def dumb_wait(self, delay):
-        # hack to wait some events
-        # TODO find more suitable waiter
-        QTest.mouseRelease(self.form, QtCore.Qt.LeftButton, delay=delay)
-
     def test_login_dialog(self):
-        assert self.form.isVisible()
         assert self.form.dialog.isVisible()
         assert self.form.dialog.loginedit.text() == ''
         assert self.form.dialog.passwordedit.text() == ''
@@ -38,13 +27,13 @@ class TestTrackGUI:
         self.form.dialog.loginedit.setText('user1')
         self.form.dialog.passwordedit.setText('123')
         QTest.mouseClick(self.form.dialog.loginbutton, QtCore.Qt.LeftButton)
-        self.dumb_wait(1000)
+        QTest.qWait(1000)
         assert not self.form.dialog.isVisible()
 
     def test_login_fail(self):
         self.form.dialog.loginedit.setText('user1')
         self.form.dialog.passwordedit.setText('999999')
         QTest.mouseClick(self.form.dialog.loginbutton, QtCore.Qt.LeftButton)
-        self.dumb_wait(1000)
+        QTest.qWait(1000)
         assert self.form.dialog.isVisible()
         assert self.form.dialog.errorlabel.isVisible()
