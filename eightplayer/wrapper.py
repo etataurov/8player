@@ -1,5 +1,9 @@
 from queue import Queue
 from PyQt4 import QtCore
+try:
+    import simplejson as json
+except ImportError:
+    import json
 from . import api
 
 STOP = object()
@@ -8,6 +12,7 @@ STOP = object()
 class Mix:
     def __init__(self, params, api_thread):
         self.api_thread = api_thread
+        self.params = params
         self.id = params.get('id')
         self.name = params.get('name')
         self.description = params.get('description')
@@ -25,6 +30,9 @@ class Mix:
         also checks that skip is possible
         """
         pass
+
+    def as_json(self):
+        return json.dumps(self.params).replace("'", "\\'")
 
 
 class Track:

@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+ <qresource>
+     <file>mixes.html</file>
+     <file>jquery.min.js</file>
+ </qresource>
+ </RCC>

@@ -2,7 +2,7 @@
 
 import sys
 import argparse
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore, QtGui, QtWebKit
 try:
     from PyQt4.phonon import Phonon
 except ImportError:
@@ -13,6 +13,7 @@ except ImportError:
             QtGui.QMessageBox.NoButton)
     sys.exit(1)
 from .wrapper import TracksAPIThread
+from . import eightplayer_rc
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -23,6 +24,8 @@ class MainWindow(QtGui.QMainWindow):
         self.current_track = None
         self.next_track = None
         self.current_mix = None
+        self.web_load_finished = False
+        self.mixes = None
         self.dialog = LoginForm(self)
 
         self.audioOutput = Phonon.AudioOutput(Phonon.MusicCategory, self)
@@ -37,7 +40,7 @@ class MainWindow(QtGui.QMainWindow):
 
         Phonon.createPath(self.mediaObject, self.audioOutput)
 
-        self.api_thread.mixes_ready.connect(self.show_mixes)
+        self.api_thread.mixes_ready.connect(self.mixes_loaded)
         self.api_thread.authenticated.connect(self.on_authenticated)
         self.api_thread.authentication_fail.connect(self.dialog.show_error)
         self.api_thread.track_ready.connect(self.play_track)
@@ -103,14 +106,6 @@ class MainWindow(QtGui.QMainWindow):
         self.timeLcd = QtGui.QLCDNumber()
         self.timeLcd.setPalette(palette)
 
-        headers = ("Title", "Description", "Tracks count", "User")
-
-        self.musicTable = QtGui.QTableWidget(0, 4)
-        self.musicTable.setHorizontalHeaderLabels(headers)
-        self.musicTable.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
-        self.musicTable.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self.musicTable.cellPressed.connect(self.tableClicked)
-
         seekerLayout = QtGui.QHBoxLayout()
         seekerLayout.addWidget(self.seekSlider)
         seekerLayout.addWidget(self.timeLcd)
@@ -123,8 +118,20 @@ class MainWindow(QtGui.QMainWindow):
 
         self.current_track_label = QtGui.QLabel("Nothing")
 
+        self.webView = QtWebKit.QWebView()
+        self.webView.setUrl(QtCore.QUrl('qrc:/mixes.html'))
+        self.webView.loadFinished.connect(self.finishLoading)
+        self.webView.page().mainFrame().javaScriptWindowObjectCleared.connect(
+                self.populateJavaScriptWindowObject)
+
+        # show inspector
+        # self.webView.page().settings().setAttribute(QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
+        # self.inspector = QtWebKit.QWebInspector()
+        # self.inspector.setPage(self.webView.page())
+        # self.inspector.setVisible(True)
+
         mainLayout = QtGui.QVBoxLayout()
-        mainLayout.addWidget(self.musicTable)
+        mainLayout.addWidget(self.webView)
         mainLayout.addWidget(self.current_track_label)
         mainLayout.addLayout(seekerLayout)
         mainLayout.addLayout(playbackLayout)
@@ -136,6 +143,10 @@ class MainWindow(QtGui.QMainWindow):
 
         self.timeLcd.display("00:00")
         self.setWindowTitle("8tracks music player")
+
+    def populateJavaScriptWindowObject(self):
+        self.webView.page().mainFrame().addToJavaScriptWindowObject(
+                'GUIPlayer', self)
 
     def tick(self, time):
         seconds = (time / 1000) % 60
@@ -172,28 +183,8 @@ class MainWindow(QtGui.QMainWindow):
             "Previous", self, shortcut="Ctrl+R"
         )
 
-    def addMixToTable(self, mix):
-        titleItem = QtGui.QTableWidgetItem(mix.name)
-        titleItem.setFlags(titleItem.flags() ^ QtCore.Qt.ItemIsEditable)
-
-        descrItem = QtGui.QTableWidgetItem(mix.description)
-        descrItem.setFlags(descrItem.flags() ^ QtCore.Qt.ItemIsEditable)
-
-        countItem = QtGui.QTableWidgetItem(str(mix.tracks_count))
-        countItem.setFlags(countItem.flags() ^ QtCore.Qt.ItemIsEditable)
-
-        userItem = QtGui.QTableWidgetItem(mix.user)
-        userItem.setFlags(userItem.flags() ^ QtCore.Qt.ItemIsEditable)
-
-        currentRow = self.musicTable.rowCount()
-        self.musicTable.insertRow(currentRow)
-        self.musicTable.setItem(currentRow, 0, titleItem)
-        self.musicTable.setItem(currentRow, 1, descrItem)
-        self.musicTable.setItem(currentRow, 2, countItem)
-        self.musicTable.setItem(currentRow, 3, userItem)
-
-
-    def tableClicked(self, row, column):
+    @QtCore.pyqtSlot(int)
+    def click(self, row):
         self.mediaObject.stop()
         self.mediaObject.clearQueue()
         mix = self.current_mix = self.mixes[row]
@@ -224,10 +215,20 @@ class MainWindow(QtGui.QMainWindow):
         self.dialog.hide()
         self.api_thread.request_mixes()
 
-    def show_mixes(self, mixes):
+    def finishLoading(self):
+        self.web_load_finished = True
+        if self.mixes is not None:
+            self.show_mixes()
+
+    def mixes_loaded(self, mixes):
         self.mixes = mixes
-        for mix in self.mixes:
-            self.addMixToTable(mix)
+        if self.web_load_finished:
+            self.show_mixes()
+
+    def show_mixes(self):
+        mainFrame = self.webView.page().mainFrame()
+        for i, mix in enumerate(self.mixes):
+            mainFrame.evaluateJavaScript("""this.addMixToList('%s', %d)""" % (mix.as_json(), i))
 
 
 class LoginForm(QtGui.QDialog):
