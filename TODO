@@ -1,4 +1,4 @@
-tests: api._request, wrapper, play gui
+tests: api._request, play gui
 show info on success/on error
 logout
 show mixes better way
