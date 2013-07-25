@@ -26,6 +26,7 @@ class MainWindow(QtGui.QMainWindow):
         self.current_mix = None
         self.web_load_finished = False
         self.mixes = None
+        self.mixes_dict = None
         self.dialog = LoginForm(self)
 
         self.audioOutput = Phonon.AudioOutput(Phonon.MusicCategory, self)
@@ -184,10 +185,10 @@ class MainWindow(QtGui.QMainWindow):
         )
 
     @QtCore.pyqtSlot(int)
-    def click(self, row):
+    def click(self, mix_id):
         self.mediaObject.stop()
         self.mediaObject.clearQueue()
-        mix = self.current_mix = self.mixes[row]
+        mix = self.current_mix = self.mixes_dict.get(mix_id)
         mix.play()
 
     def play_track(self, track):
@@ -222,6 +223,7 @@ class MainWindow(QtGui.QMainWindow):
 
     def mixes_loaded(self, mixes):
         self.mixes = mixes
+        self.mixes_dict = {mix.id: mix for mix in mixes}
         if self.web_load_finished:
             self.show_mixes()
 

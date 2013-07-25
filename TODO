@@ -21,3 +21,6 @@ close main window on login window close
 newer jquery
 use one-style (pep8 or QT-style but I think it maybe different in separate modules)
 command line parameters for inspector and logging level
+show mixes inline with horizontal scrolling
+handle parse errors
+image loading is to slow

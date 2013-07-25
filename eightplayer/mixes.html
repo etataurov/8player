@@ -1,18 +1,36 @@
 <html>
 <head>
     <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="handlebars.js"></script>
+    <style>
+    div.mix{
+        float: left;
+        padding-left: 10px;
+    }
+    p.img-descr{
+        text-align: center;
+    }
+    </style>
+    <script id="entry-template" type="text/x-handlebars-template">
+    <div class="mix" data-mixid="{{id}}">
+        <img src="pic.jpg"/>
+        <p class="img-descr">{{name}}</p>
+    </div>
+    </script>
 </head><body>
-<ul></ul>
+<div class="mixes">
+</div>
 <script type="text/javascript">
+var source = $("#entry-template").html();
+var template = Handlebars.compile(source);
 function addMixToList(mix, mix_num){
     var parsed_mix = JSON.parse(mix);
-    var mix_li = $('<li>');
-    var mix_link = $('<a>');
-    mix_link.text(parsed_mix.name);
-    mix_link.attr('href', '#');
-    mix_link.attr('onClick', 'javascript:sendListenEvent('+mix_num+')')
-    mix_li.append(mix_link);
-    $('ul').append(mix_li);
+    var mix = $(template(parsed_mix));
+    mix.click(function(){
+        sendListenEvent($(this).data('mixid'));
+        console.log($(this).data('mixid'))
+    })
+    $('div.mixes').append(mix);
 }
 function sendListenEvent(mix_num){
     GUIPlayer.click(mix_num);

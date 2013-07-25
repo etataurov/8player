@@ -2,5 +2,7 @@
  <qresource>
      <file>mixes.html</file>
      <file>jquery.min.js</file>
+     <file>handlebars.js</file>
+     <file>pic.jpg</file>
  </qresource>
  </RCC>
