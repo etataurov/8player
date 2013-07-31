@@ -3,6 +3,6 @@
      <file>mixes.html</file>
      <file>jquery.min.js</file>
      <file>handlebars.js</file>
-     <file>pic.jpg</file>
+     <file>jquery.mousewheel.min.js</file>
  </qresource>
  </RCC>

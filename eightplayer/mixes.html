@@ -2,18 +2,25 @@
 <head>
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="handlebars.js"></script>
+    <script type="text/javascript" src="jquery.mousewheel.min.js"></script>
     <style>
+    body{
+        margin: 0;
+    }
     div.mix{
-        float: left;
         padding-left: 10px;
+        display: inline-block;
     }
     p.img-descr{
         text-align: center;
     }
+    .mixes{
+        white-space: nowrap;
+    }
     </style>
     <script id="entry-template" type="text/x-handlebars-template">
     <div class="mix" data-mixid="{{id}}">
-        <img src="pic.jpg"/>
+        <img src="{{cover_urls.max200}}"/>
         <p class="img-descr">{{name}}</p>
     </div>
     </script>
@@ -23,6 +30,12 @@
 <script type="text/javascript">
 var source = $("#entry-template").html();
 var template = Handlebars.compile(source);
+$(document).ready(function(){
+    $("body").mousewheel(function(event, delta) {
+        this.scrollLeft -= delta;
+        event.preventDefault();
+   });
+})
 function addMixToList(mix, mix_num){
     var parsed_mix = JSON.parse(mix);
     var mix = $(template(parsed_mix));

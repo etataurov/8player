@@ -5,7 +5,7 @@ except ImportError:
     import json
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
 
 API_VERSION = 2

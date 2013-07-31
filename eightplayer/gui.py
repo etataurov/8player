@@ -82,7 +82,7 @@ class MainWindow(QtGui.QMainWindow):
         self.current_mix.next()
 
     def sizeHint(self):
-        return QtCore.QSize(500, 300)
+        return QtCore.QSize(600, 300)
 
     def setupUi(self):
         bar = QtGui.QToolBar()
@@ -124,6 +124,7 @@ class MainWindow(QtGui.QMainWindow):
         self.webView.loadFinished.connect(self.finishLoading)
         self.webView.page().mainFrame().javaScriptWindowObjectCleared.connect(
                 self.populateJavaScriptWindowObject)
+        self.webView.setMinimumSize(QtCore.QSize(500, 270))
 
         # show inspector
         # self.webView.page().settings().setAttribute(QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
