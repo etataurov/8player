@@ -120,7 +120,7 @@ class MainWindow(QtGui.QMainWindow):
         self.current_track_label = QtGui.QLabel("Nothing")
 
         self.webView = QtWebKit.QWebView()
-        self.webView.setUrl(QtCore.QUrl('qrc:/mixes.html'))
+        self.webView.setUrl(QtCore.QUrl('qrc:/resources/mixes.html'))
         self.webView.loadFinished.connect(self.finishLoading)
         self.webView.page().mainFrame().javaScriptWindowObjectCleared.connect(
                 self.populateJavaScriptWindowObject)

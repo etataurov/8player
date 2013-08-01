@@ -22,7 +22,8 @@ use one-style (pep8 or QT-style but I think it maybe different in separate modul
 command line parameters for inspector and logging level
 show mixes inline with horizontal scrolling
 handle parse errors
-image loading is to slow
+image loading is to slow (ajax loading)
 mixes may double
-files into resources dir
 loglevel in config
+show mixes only after all loaded
+gray background - page pallete

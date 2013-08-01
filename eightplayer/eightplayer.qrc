@@ -1,8 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
  <qresource>
-     <file>mixes.html</file>
-     <file>jquery.min.js</file>
-     <file>handlebars.js</file>
-     <file>jquery.mousewheel.min.js</file>
+     <file>resources/mixes.html</file>
+     <file>resources/jquery.min.js</file>
+     <file>resources/handlebars.js</file>
+     <file>resources/jquery.mousewheel.min.js</file>
  </qresource>
  </RCC>
