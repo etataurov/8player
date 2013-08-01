@@ -3,9 +3,9 @@
     "set": {
         "at_last_track": false, 
         "track": {
-            "performer": "Paramore", 
-            "name": "Anklebiters", 
-            "url": "http://127.0.0.1:8888/%s.mp3", 
+            "performer": "%(artist)s",
+            "name": "%(title)s",
+            "url": "http://127.0.0.1:8888/%(filename)s",
             "play_duration": 137, 
             "stream_source": "match_sc", 
             "buy_icon": "http://8tracks.com/assets/buy/soundcloud.png", 

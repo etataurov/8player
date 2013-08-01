@@ -2,13 +2,22 @@ import tornado.ioloop
 import tornado.web
 import os
 import datetime
-import random
+import stagger
 
-FILES_DIR = '/home/etataurov/test'
+MUSIC_DIR = 'test_music'
 PLAY_TOKEN = '12345'
-TRACKS = ['ashley', 'about_a_girl', 'brand_new_day']
 
 # TODO check api_key and user token in every request
+
+
+def tracks_iterator():
+    while True:
+        for filename in os.listdir(MUSIC_DIR):
+            if os.path.isfile(os.path.join(MUSIC_DIR, filename)):
+                yield filename
+
+TRACKS = tracks_iterator()
+
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -34,11 +43,16 @@ class SetsHandler(tornado.web.RequestHandler):
 
 
 class PlayHandler(tornado.web.RequestHandler):
+    def next_track(self):
+        filename = next(TRACKS)
+        track = stagger.read_tag(os.path.join(MUSIC_DIR, filename))
+        return {'filename': filename, 'title': track.title, 'artist': track.artist}
+
     def get(self):
         mix_id = self.get_argument('mix_id')
         self.set_header("Content-Type", 'application/json; charset=utf-8')
         with open('play.json') as play:
-            self.finish(play.read() % random.choice(TRACKS))
+            self.finish(play.read() % self.next_track())
 
 
 class ReportHandler(tornado.web.RequestHandler):
@@ -49,7 +63,7 @@ class ReportHandler(tornado.web.RequestHandler):
 
 class FileHandler(tornado.web.RequestHandler):
     def get(self, object_name):
-        path = os.path.join(FILES_DIR, object_name)
+        path = os.path.join(MUSIC_DIR, object_name)
         if not os.path.isfile(path):
             raise tornado.web.HTTPError(404)
         info = os.stat(path)
