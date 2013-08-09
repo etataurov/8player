@@ -19,9 +19,10 @@ log = logging.getLogger(__name__)
 
 
 class MainWindow(QtGui.QMainWindow):
-    def __init__(self, parent=None, config_filename=None):
+    def __init__(self, parent=None, config_filename=None, inspector=False):
         super(MainWindow, self).__init__(parent)
         self.api_thread = TracksAPIThread(config_filename=config_filename)
+        self.show_inspector = inspector
         self.api_thread.start()
         self.current_track = None
         self.next_track = None
@@ -128,11 +129,11 @@ class MainWindow(QtGui.QMainWindow):
                 self.populateJavaScriptWindowObject)
         self.webView.setMinimumSize(QtCore.QSize(500, 270))
 
-        # show inspector
-        # self.webView.page().settings().setAttribute(QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
-        # self.inspector = QtWebKit.QWebInspector()
-        # self.inspector.setPage(self.webView.page())
-        # self.inspector.setVisible(True)
+        if self.show_inspector:
+            self.webView.page().settings().setAttribute(QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
+            self.inspector = QtWebKit.QWebInspector()
+            self.inspector.setPage(self.webView.page())
+            self.inspector.setVisible(True)
 
         mainLayout = QtGui.QVBoxLayout()
         mainLayout.addWidget(self.webView)
@@ -279,11 +280,11 @@ class LoginForm(QtGui.QDialog):
         self.errorlabel.show()
 
 
-def main(config_filename="config.json"):
+def main(config_filename="config.json", inspector=False):
     app = QtGui.QApplication(sys.argv)
     app.setApplicationName("8tracks Music Player")
     app.setQuitOnLastWindowClosed(True)
-    window = MainWindow(config_filename=config_filename)
+    window = MainWindow(config_filename=config_filename, inspector=inspector)
     window.show()
     window.check_login()
     sys.exit(app.exec_())
