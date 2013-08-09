@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import sys
-import argparse
 from PyQt4 import QtCore, QtGui, QtWebKit
 try:
     from PyQt4.phonon import Phonon
@@ -269,15 +268,15 @@ class LoginForm(QtGui.QDialog):
         self.errorlabel.show()
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--config", default="config.json", help="path to config file")
-    args = parser.parse_args()
-
+def main(config_filename="config.json"):
     app = QtGui.QApplication(sys.argv)
     app.setApplicationName("8tracks Music Player")
     app.setQuitOnLastWindowClosed(True)
-    window = MainWindow(config_filename=args.config)
+    window = MainWindow(config_filename=config_filename)
     window.show()
     window.check_login()
     sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()
