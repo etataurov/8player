@@ -259,6 +259,10 @@ class LoginForm(QtGui.QDialog):
         self.loginbutton.clicked.connect(self.login)
         self.setWindowTitle("Login")
 
+    def closeEvent(self, event):
+        self.parent().close()
+        event.accept()
+
     def login(self):
         login = self.loginedit.text()
         password = self.passwordedit.text()
