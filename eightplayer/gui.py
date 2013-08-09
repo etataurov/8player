@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import sys
+import logging
 from PyQt4 import QtCore, QtGui, QtWebKit
 try:
     from PyQt4.phonon import Phonon
@@ -13,6 +14,8 @@ except ImportError:
     sys.exit(1)
 from .wrapper import TracksAPIThread
 from . import eightplayer_rc
+
+log = logging.getLogger(__name__)
 
 
 class MainWindow(QtGui.QMainWindow):
@@ -189,15 +192,18 @@ class MainWindow(QtGui.QMainWindow):
         self.mediaObject.stop()
         self.mediaObject.clearQueue()
         mix = self.current_mix = self.mixes_dict.get(mix_id)
+        log.info("Selected: {}".format(mix))
         mix.play()
 
     def play_track(self, track):
+        log.info("Start playing track: {}".format(track))
         self.current_track = track
         source = Phonon.MediaSource(QtCore.QUrl(track.url))
         self.mediaObject.setCurrentSource(source)
         self.mediaObject.play()
 
     def enqueue_track(self, track):
+        log.info("Enqueue next track: {}".format(track))
         self.next_track = track
         source = Phonon.MediaSource(QtCore.QUrl(track.url))
         self.mediaObject.enqueue(source)
@@ -269,6 +275,7 @@ class LoginForm(QtGui.QDialog):
         self.parent().authenticate(login, password)
 
     def show_error(self):
+        log.info("Wrong username/password")
         self.errorlabel.show()
 
 

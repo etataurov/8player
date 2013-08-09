@@ -1,5 +1,6 @@
 from queue import Queue
 from PyQt4 import QtCore
+import logging
 try:
     import simplejson as json
 except ImportError:
@@ -8,6 +9,7 @@ from . import api
 
 STOP = object()
 
+log = logging.getLogger(__name__)
 
 class Mix:
     def __init__(self, params, api_thread):
@@ -18,6 +20,9 @@ class Mix:
         self.description = params.get('description')
         self.tracks_count = params.get('tracks_count')
         self.user = params.get('user').get('login')
+
+    def __str__(self):
+        return "Mix({}): {}".format(self.id, self.name)
 
     def play(self):
         self.api_thread.play_mix(self.id)
@@ -44,11 +49,15 @@ class Track:
         self.name = params.get('name')
         self.reported = False
 
+    def __str__(self):
+        return self.get_title()
+
     def get_title(self):
         return "{} - {}".format(self.performer, self.name)
 
     def report(self, mix_id):
         if not self.reported:
+            log.info("30 sec reporting")
             self.api_thread.report_track(self, mix_id)
             # TODO we should be sure that we are reported
             self.reported = True
