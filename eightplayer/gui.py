@@ -32,6 +32,10 @@ class MainWindow(QtGui.QMainWindow):
         self.mixes_dict = None
         self.dialog = LoginForm(self)
 
+        self.tray_icon = QtGui.QSystemTrayIcon(self)
+        self.setupSysTrayMenu()
+        self.tray_icon.show()
+
         self.audioOutput = Phonon.AudioOutput(Phonon.MusicCategory, self)
         self.mediaObject = Phonon.MediaObject(self)
 
@@ -86,6 +90,14 @@ class MainWindow(QtGui.QMainWindow):
 
     def sizeHint(self):
         return QtCore.QSize(600, 300)
+
+    def setupSysTrayMenu(self):
+        menu = QtGui.QMenu(self)
+        exitAction = QtGui.QAction("Exit",
+            self, triggered=self.close
+        )
+        menu.addAction(exitAction)
+        self.tray_icon.setContextMenu(menu)
 
     def setupUi(self):
         bar = QtGui.QToolBar()

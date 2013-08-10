@@ -43,3 +43,20 @@ class TestTrackGUI:
         self.form.show()
         self.form.dialog.close()
         assert not self.form.isVisible()
+
+    def test_tray_icon(self):
+        assert isinstance(self.form.tray_icon, QtGui.QSystemTrayIcon)
+        assert self.form.tray_icon.isVisible()
+        #TODO icon
+
+    def test_tray_icon_menu(self):
+        assert isinstance(self.form.tray_icon.contextMenu(), QtGui.QMenu)
+        assert len(self.form.tray_icon.contextMenu().actions()) == 1  # will be more soon
+
+    def test_tray_icon_menu_exit(self):
+        exit_action = self.form.tray_icon.contextMenu().actions()[0]
+        assert exit_action.isVisible()
+        assert exit_action.text() == 'Exit'  # TODO i18n
+        self.form.show()
+        exit_action.trigger()
+        assert not self.form.isVisible()
