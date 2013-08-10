@@ -38,3 +38,8 @@ class TestTrackGUI:
         QTest.qWait(1000)
         assert self.form.dialog.isVisible()
         assert self.form.dialog.errorlabel.isVisible()
+
+    def test_login_window_closes_main(self):
+        self.form.show()
+        self.form.dialog.close()
+        assert not self.form.isVisible()
