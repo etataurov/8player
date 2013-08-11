@@ -2,6 +2,7 @@ import sys
 import json
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtTest import QTest
+from PyQt4.phonon import Phonon
 from eightplayer.gui import MainWindow
 
 TEST_CONFIG = {'api_key': '654321', 'service_url': 'http://127.0.0.1:8888/'}
@@ -17,6 +18,11 @@ class TestTrackGUI:
         self.form = MainWindow(config_filename=TEST_CONFIG_PATH)
         # TODO call check_login automatically
         self.form.check_login()
+
+    def teardown_method(self, method):
+        self.form.dialog.close()
+        self.form.tray_icon.hide()
+        self.form.close()
 
     def test_login_dialog(self):
         assert self.form.dialog.isVisible()
@@ -47,16 +53,54 @@ class TestTrackGUI:
     def test_tray_icon(self):
         assert isinstance(self.form.tray_icon, QtGui.QSystemTrayIcon)
         assert self.form.tray_icon.isVisible()
-        #TODO icon
 
     def test_tray_icon_menu(self):
         assert isinstance(self.form.tray_icon.contextMenu(), QtGui.QMenu)
-        assert len(self.form.tray_icon.contextMenu().actions()) == 1  # will be more soon
+        assert len(self.form.tray_icon.contextMenu().actions()) == 3
 
     def test_tray_icon_menu_exit(self):
-        exit_action = self.form.tray_icon.contextMenu().actions()[0]
+        exit_action = self.form.tray_icon.contextMenu().actions()[2]
         assert exit_action.isVisible()
         assert exit_action.text() == 'Exit'  # TODO i18n
         self.form.show()
         exit_action.trigger()
         assert not self.form.isVisible()
+
+    def test_tray_icon_menu_play(self):
+        play_action = self.form.tray_icon.contextMenu().actions()[0]
+        assert play_action.isVisible()
+        assert play_action.text() == 'Play'  # TODO i18n
+        assert not play_action.isEnabled()
+
+    # TODO test actions should not working without authentication, do some separation
+
+    def test_tray_icon_menu_play_action(self):
+        play_action = self.form.tray_icon.contextMenu().actions()[0]
+        self.play_mix()
+        assert not play_action.isEnabled()
+        self.form.mediaObject.pause()
+        assert play_action.isEnabled()
+        play_action.trigger()
+        assert self.form.mediaObject.state() == Phonon.PlayingState
+
+    def test_tray_icon_menu_pause(self):
+        pause_action = self.form.tray_icon.contextMenu().actions()[1]
+        assert pause_action.isVisible()
+        assert pause_action.text() == 'Pause'  # TODO i18n
+        assert not pause_action.isEnabled()
+
+    def test_tray_icon_menu_pause_action(self):
+        pause_action = self.form.tray_icon.contextMenu().actions()[1]
+        self.play_mix()
+        assert pause_action.isEnabled()
+        pause_action.trigger()
+        assert not pause_action.isEnabled()
+        assert self.form.mediaObject.state() == Phonon.PausedState
+
+    # helpers
+
+    def play_mix(self):
+        self.form.api_thread.request_mixes()
+        QTest.qWait(100)
+        self.form.click(2025587)  # mix_id from mixes.json
+        QTest.qWait(100)

@@ -32,10 +32,6 @@ class MainWindow(QtGui.QMainWindow):
         self.mixes_dict = None
         self.dialog = LoginForm(self)
 
-        self.tray_icon = QtGui.QSystemTrayIcon(self)
-        self.setupSysTrayMenu()
-        self.tray_icon.show()
-
         self.audioOutput = Phonon.AudioOutput(Phonon.MusicCategory, self)
         self.mediaObject = Phonon.MediaObject(self)
 
@@ -54,6 +50,11 @@ class MainWindow(QtGui.QMainWindow):
         self.api_thread.track_ready.connect(self.play_track)
         self.api_thread.next_track_ready.connect(self.enqueue_track)
 
+        # TODO change icon
+        self.tray_icon = QtGui.QSystemTrayIcon(self.style().standardIcon(QtGui.QStyle.SP_MediaVolume), self)
+        self.setupSysTrayMenu()
+        self.tray_icon.show()
+
         self.setupActions()
         self.setupUi()
 
@@ -68,7 +69,9 @@ class MainWindow(QtGui.QMainWindow):
 
         elif newState == Phonon.PlayingState:
             self.playAction.setEnabled(False)
+            self.trayPlayAction.setEnabled(False)
             self.pauseAction.setEnabled(True)
+            self.trayPauseAction.setEnabled(True)
 
         elif newState == Phonon.StoppedState:
             self.playAction.setEnabled(True)
@@ -77,7 +80,10 @@ class MainWindow(QtGui.QMainWindow):
 
         elif newState == Phonon.PausedState:
             self.pauseAction.setEnabled(False)
+            self.trayPauseAction.setEnabled(False)
             self.playAction.setEnabled(True)
+            self.trayPlayAction.setEnabled(True)
+
 
     def sourceChanged(self, source):
         if self.next_track is not None:
@@ -93,10 +99,18 @@ class MainWindow(QtGui.QMainWindow):
 
     def setupSysTrayMenu(self):
         menu = QtGui.QMenu(self)
-        exitAction = QtGui.QAction("Exit",
+        trayExitAction = QtGui.QAction("Exit",
             self, triggered=self.close
         )
-        menu.addAction(exitAction)
+        self.trayPlayAction = QtGui.QAction("Play",
+            self, enabled=False, triggered=self.mediaObject.play
+        )
+        self.trayPauseAction = QtGui.QAction("Pause",
+            self, enabled=False, triggered=self.mediaObject.pause
+        )
+        menu.addAction(self.trayPlayAction)
+        menu.addAction(self.trayPauseAction)
+        menu.addAction(trayExitAction)
         self.tray_icon.setContextMenu(menu)
 
     def setupUi(self):
