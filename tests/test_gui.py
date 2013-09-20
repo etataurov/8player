@@ -102,5 +102,5 @@ class TestTrackGUI:
     def play_mix(self):
         self.form.api_thread.request_mixes()
         QTest.qWait(100)
-        self.form.click(2025587)  # mix_id from mixes.json
+        self.form.browserTab.click(2025587)  # mix_id from mixes.json
         QTest.qWait(100)

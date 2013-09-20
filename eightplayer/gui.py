@@ -18,6 +18,60 @@ from . import eightplayer_rc
 log = logging.getLogger(__name__)
 
 
+class BrowserTab(QtGui.QWidget):
+    def __init__(self, parent=None):
+        super(BrowserTab, self).__init__(parent=parent)
+        self.mainWindow = parent  # do it because in click, parent() returns some QStackedWidget object
+        self.web_load_finished = False
+        self.mixes = None
+        self.mixes_dict = None
+        self.webView = QtWebKit.QWebView()
+        self.webView.setUrl(QtCore.QUrl('qrc:/resources/mixes.html'))
+        self.webView.loadFinished.connect(self.finishLoading)
+        self.webView.page().mainFrame().javaScriptWindowObjectCleared.connect(
+                self.populateJavaScriptWindowObject)
+        self.webView.setMinimumSize(QtCore.QSize(500, 270))
+        self.mainWindow.api_thread.mixes_ready.connect(self.mixes_loaded)
+
+        if self.mainWindow.show_inspector:
+            self.webView.page().settings().setAttribute(QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
+            self.inspector = QtWebKit.QWebInspector()
+            self.inspector.setPage(self.webView.page())
+            self.inspector.setVisible(True)
+
+        mainLayout = QtGui.QVBoxLayout()
+        mainLayout.addWidget(self.webView)
+        self.setLayout(mainLayout)
+
+    def populateJavaScriptWindowObject(self):
+        self.webView.page().mainFrame().addToJavaScriptWindowObject(
+                'GUIPlayer', self)
+
+    def finishLoading(self):
+        self.web_load_finished = True
+        if self.mixes is not None:
+            self.show_mixes()
+
+    def mixes_loaded(self, mixes):
+        self.mixes = mixes
+        self.mixes_dict = {mix.id: mix for mix in mixes}
+        if self.web_load_finished:
+            self.show_mixes()
+
+    def show_mixes(self):
+        mainFrame = self.webView.page().mainFrame()
+        for i, mix in enumerate(self.mixes):
+            mainFrame.evaluateJavaScript("""this.addMixToList('%s', %d)""" % (mix.as_json(), i))
+
+    @QtCore.pyqtSlot(int)
+    def click(self, mix_id):
+        self.mainWindow.mediaObject.stop()
+        self.mainWindow.mediaObject.clearQueue()
+        mix = self.mainWindow.current_mix = self.mixes_dict.get(mix_id)
+        log.info("Selected: {}".format(mix))
+        mix.play()
+
+
 class MainWindow(QtGui.QMainWindow):
     def __init__(self, parent=None, config_filename=None, inspector=False):
         super(MainWindow, self).__init__(parent)
@@ -27,9 +81,6 @@ class MainWindow(QtGui.QMainWindow):
         self.current_track = None
         self.next_track = None
         self.current_mix = None
-        self.web_load_finished = False
-        self.mixes = None
-        self.mixes_dict = None
         self.dialog = LoginForm(self)
 
         self.audioOutput = Phonon.AudioOutput(Phonon.MusicCategory, self)
@@ -44,7 +95,6 @@ class MainWindow(QtGui.QMainWindow):
 
         Phonon.createPath(self.mediaObject, self.audioOutput)
 
-        self.api_thread.mixes_ready.connect(self.mixes_loaded)
         self.api_thread.authenticated.connect(self.on_authenticated)
         self.api_thread.authentication_fail.connect(self.dialog.show_error)
         self.api_thread.track_ready.connect(self.play_track)
@@ -83,7 +133,6 @@ class MainWindow(QtGui.QMainWindow):
             self.trayPauseAction.setEnabled(False)
             self.playAction.setEnabled(True)
             self.trayPlayAction.setEnabled(True)
-
 
     def sourceChanged(self, source):
         if self.next_track is not None:
@@ -148,21 +197,12 @@ class MainWindow(QtGui.QMainWindow):
 
         self.current_track_label = QtGui.QLabel("Nothing")
 
-        self.webView = QtWebKit.QWebView()
-        self.webView.setUrl(QtCore.QUrl('qrc:/resources/mixes.html'))
-        self.webView.loadFinished.connect(self.finishLoading)
-        self.webView.page().mainFrame().javaScriptWindowObjectCleared.connect(
-                self.populateJavaScriptWindowObject)
-        self.webView.setMinimumSize(QtCore.QSize(500, 270))
-
-        if self.show_inspector:
-            self.webView.page().settings().setAttribute(QtWebKit.QWebSettings.DeveloperExtrasEnabled, True)
-            self.inspector = QtWebKit.QWebInspector()
-            self.inspector.setPage(self.webView.page())
-            self.inspector.setVisible(True)
+        tabWidget = QtGui.QTabWidget()
+        self.browserTab = BrowserTab(self)
+        tabWidget.addTab(self.browserTab, "Last Mixes")
 
         mainLayout = QtGui.QVBoxLayout()
-        mainLayout.addWidget(self.webView)
+        mainLayout.addWidget(tabWidget)
         mainLayout.addWidget(self.current_track_label)
         mainLayout.addLayout(seekerLayout)
         mainLayout.addLayout(playbackLayout)
@@ -174,10 +214,6 @@ class MainWindow(QtGui.QMainWindow):
 
         self.timeLcd.display("00:00")
         self.setWindowTitle("8tracks music player")
-
-    def populateJavaScriptWindowObject(self):
-        self.webView.page().mainFrame().addToJavaScriptWindowObject(
-                'GUIPlayer', self)
 
     def tick(self, time):
         seconds = (time / 1000) % 60
@@ -214,14 +250,6 @@ class MainWindow(QtGui.QMainWindow):
             "Previous", self, shortcut="Ctrl+R"
         )
 
-    @QtCore.pyqtSlot(int)
-    def click(self, mix_id):
-        self.mediaObject.stop()
-        self.mediaObject.clearQueue()
-        mix = self.current_mix = self.mixes_dict.get(mix_id)
-        log.info("Selected: {}".format(mix))
-        mix.play()
-
     def play_track(self, track):
         log.info("Start playing track: {}".format(track))
         self.current_track = track
@@ -248,22 +276,6 @@ class MainWindow(QtGui.QMainWindow):
     def on_authenticated(self):
         self.dialog.hide()
         self.api_thread.request_mixes()
-
-    def finishLoading(self):
-        self.web_load_finished = True
-        if self.mixes is not None:
-            self.show_mixes()
-
-    def mixes_loaded(self, mixes):
-        self.mixes = mixes
-        self.mixes_dict = {mix.id: mix for mix in mixes}
-        if self.web_load_finished:
-            self.show_mixes()
-
-    def show_mixes(self):
-        mainFrame = self.webView.page().mainFrame()
-        for i, mix in enumerate(self.mixes):
-            mainFrame.evaluateJavaScript("""this.addMixToList('%s', %d)""" % (mix.as_json(), i))
 
 
 class LoginForm(QtGui.QDialog):
