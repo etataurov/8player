@@ -197,12 +197,10 @@ class MainWindow(QtGui.QMainWindow):
 
         self.current_track_label = QtGui.QLabel("Nothing")
 
-        tabWidget = QtGui.QTabWidget()
         self.browserTab = BrowserTab(self)
-        tabWidget.addTab(self.browserTab, "Last Mixes")
 
         mainLayout = QtGui.QVBoxLayout()
-        mainLayout.addWidget(tabWidget)
+        mainLayout.addWidget(self.browserTab)
         mainLayout.addWidget(self.current_track_label)
         mainLayout.addLayout(seekerLayout)
         mainLayout.addLayout(playbackLayout)
