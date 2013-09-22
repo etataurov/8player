@@ -11,6 +11,7 @@ STOP = object()
 
 log = logging.getLogger(__name__)
 
+
 class Mix:
     def __init__(self, params, api_thread):
         self.api_thread = api_thread
@@ -63,8 +64,16 @@ class Track:
             self.reported = True
 
 
+class Tag:
+    def __init__(self, params):
+        self.name = params['name']
+        cool_taggings_count = params['cool_taggings_count'].replace(',', '')
+        self.count = int(cool_taggings_count[:-1]) if cool_taggings_count.endswith('+') else int(cool_taggings_count)
+
+
 class TracksAPIThread(QtCore.QThread):
     mixes_ready = QtCore.pyqtSignal(list)
+    tags_ready = QtCore.pyqtSignal(list)
     track_ready = QtCore.pyqtSignal(Track)
     next_track_ready = QtCore.pyqtSignal(Track)
     authenticated = QtCore.pyqtSignal()
@@ -85,6 +94,13 @@ class TracksAPIThread(QtCore.QThread):
             self.mixes_ready.emit(mixes)
 
         self.request_queue.put((self.tracks_api.get_mixes, [], callback))
+
+    def request_tags(self):
+        def callback(params):
+            tags = [Tag(x) for x in params]
+            self.tags_ready.emit(tags)
+
+        self.request_queue.put((self.tracks_api.get_tags, [], callback))
 
     def authenticate(self, login, password):
         self.request_queue.put(

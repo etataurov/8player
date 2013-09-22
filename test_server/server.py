@@ -21,6 +21,7 @@ TRACKS = tracks_iterator()
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
+        # TODO get filename param
         self.set_header("Content-Type", 'application/json; charset=utf-8')
         with open('mixes.json') as mixes:
             self.finish(mixes.read())
@@ -34,6 +35,14 @@ class MainHandler(tornado.web.RequestHandler):
         with open('sessions.json') as sessions:
             self.finish(sessions.read())
         print("successfully send")
+
+
+class TagsHandler(tornado.web.RequestHandler):
+    def get(self):
+        # TODO get filename param
+        self.set_header("Content-Type", 'application/json; charset=utf-8')
+        with open('tags.json') as mixes:
+            self.finish(mixes.read())
 
 
 class SetsHandler(tornado.web.RequestHandler):
@@ -80,6 +89,7 @@ class FileHandler(tornado.web.RequestHandler):
 application = tornado.web.Application([
     (r"/sessions.json", MainHandler),
     (r"/mixes.json", MainHandler),
+    (r"/tags.json", TagsHandler),
     (r"/sets/new.json", SetsHandler),
     (r"/sets/%s/play.json" % PLAY_TOKEN, PlayHandler),
     (r"/sets/%s/next.json" % PLAY_TOKEN, PlayHandler),

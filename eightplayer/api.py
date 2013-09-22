@@ -60,6 +60,10 @@ class EightTracksAPI:
         self._get_play_token()
         return self._get_mixes()
 
+    def get_tags(self):
+        response_data = self._request('tags.json')
+        return response_data['tags']
+
     def play_mix(self, mix_id):
         params = {'mix_id': mix_id}
         response_data = self._request('sets/{}/play.json'.format(self.play_token), params)
@@ -73,3 +77,4 @@ class EightTracksAPI:
     def report_track(self, track_id, mix_id):
         params = {'track_id': track_id, 'mix_id': mix_id}
         self._request('sets/{}/report.json'.format(self.play_token), params)
+

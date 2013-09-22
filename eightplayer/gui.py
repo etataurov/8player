@@ -25,6 +25,7 @@ class BrowserTab(QtGui.QWidget):
         self.web_load_finished = False
         self.mixes = None
         self.mixes_dict = None
+        self.current_mode = 'Hot'  # TODO do it another way
         self.webView = QtWebKit.QWebView()
         self.webView.setUrl(QtCore.QUrl('qrc:/resources/mixes.html'))
         self.webView.loadFinished.connect(self.finishLoading)
@@ -99,6 +100,7 @@ class MainWindow(QtGui.QMainWindow):
         self.api_thread.authentication_fail.connect(self.dialog.show_error)
         self.api_thread.track_ready.connect(self.play_track)
         self.api_thread.next_track_ready.connect(self.enqueue_track)
+        self.api_thread.tags_ready.connect(self.update_combobox)
 
         # TODO change icon
         self.tray_icon = QtGui.QSystemTrayIcon(self.style().standardIcon(QtGui.QStyle.SP_MediaVolume), self)
@@ -107,6 +109,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setupActions()
         self.setupUi()
+        self.api_thread.request_tags()
 
     def stateChanged(self, newState, oldState):
         if newState == Phonon.ErrorState:
@@ -199,7 +202,12 @@ class MainWindow(QtGui.QMainWindow):
 
         self.browserTab = BrowserTab(self)
 
+        self.modeCombobox = QtGui.QComboBox()
+        self.modeCombobox.addItem('Hot')
+        self.modeCombobox.insertSeparator(1)
+
         mainLayout = QtGui.QVBoxLayout()
+        mainLayout.addWidget(self.modeCombobox)
         mainLayout.addWidget(self.browserTab)
         mainLayout.addWidget(self.current_track_label)
         mainLayout.addLayout(seekerLayout)
@@ -247,6 +255,10 @@ class MainWindow(QtGui.QMainWindow):
             self.style().standardIcon(QtGui.QStyle.SP_MediaSkipBackward),
             "Previous", self, shortcut="Ctrl+R"
         )
+
+    def update_combobox(self, tags):
+        sorted_tags = [tag.name for tag in sorted(tags, key=lambda x: x.count, reverse=True)]
+        self.modeCombobox.addItems(sorted_tags)
 
     def play_track(self, track):
         log.info("Start playing track: {}".format(track))

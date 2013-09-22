@@ -97,6 +97,12 @@ class TestTrackGUI:
         assert not pause_action.isEnabled()
         assert self.form.mediaObject.state() == Phonon.PausedState
 
+    def test_tags_list(self):
+        assert self.form.modeCombobox.itemText(0) == 'Hot'
+        QTest.qWait(500)
+        assert self.form.modeCombobox.count() == 28  # Hot, separator and 26 tags
+
+
     # helpers
 
     def play_mix(self):
