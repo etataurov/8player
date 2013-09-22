@@ -112,6 +112,11 @@ class TestTrackGUI:
         assert 'sex' in self.form.browserWidget.mixes
         self.form.browserWidget.update_mixes('Hot')
 
+    def test_mixes_count(self):
+        self.form.api_thread.request_mixes()
+        QTest.qWait(100)  # wait for mixes
+        mainFrame = self.form.browserWidget.webView.page().mainFrame()
+        assert mainFrame.evaluateJavaScript("""$('div.mix').size()""") == 12
     # helpers
 
     def play_mix(self):

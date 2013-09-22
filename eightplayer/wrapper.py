@@ -19,6 +19,7 @@ class Mix:
         self.id = params.get('id')
         self.name = params.get('name')
         self.description = params.get('description')
+        self.params.pop('description')  # hacky way to fix showing mixes TODO handle json
         self.tracks_count = params.get('tracks_count')
         self.user = params.get('user').get('login')
 
