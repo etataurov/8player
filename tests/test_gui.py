@@ -102,11 +102,20 @@ class TestTrackGUI:
         QTest.qWait(500)
         assert self.form.modeCombobox.count() == 28  # Hot, separator and 26 tags
 
+    def test_tags_change(self):
+        self.form.api_thread.request_mixes()
+        QTest.qWait(100)  # wait for mixes
+        assert 'Hot' in self.form.browserWidget.mixes
+        self.form.browserWidget.update_mixes('sex')
+        QTest.qWait(100)
+        assert self.form.browserWidget.current_tag == 'sex'
+        assert 'sex' in self.form.browserWidget.mixes
+        self.form.browserWidget.update_mixes('Hot')
 
     # helpers
 
     def play_mix(self):
         self.form.api_thread.request_mixes()
         QTest.qWait(100)
-        self.form.browserTab.click(2025587)  # mix_id from mixes.json
+        self.form.browserWidget.click(2025587)  # mix_id from mixes.json
         QTest.qWait(100)

@@ -18,14 +18,14 @@ from . import eightplayer_rc
 log = logging.getLogger(__name__)
 
 
-class BrowserTab(QtGui.QWidget):
+class BrowserWidget(QtGui.QWidget):
     def __init__(self, parent=None):
-        super(BrowserTab, self).__init__(parent=parent)
+        super(BrowserWidget, self).__init__(parent=parent)
         self.mainWindow = parent  # do it because in click, parent() returns some QStackedWidget object
         self.web_load_finished = False
-        self.mixes = None
-        self.mixes_dict = None
-        self.current_mode = 'Hot'  # TODO do it another way
+        self.mixes = {}  # tag -> mixes
+        self.mixes_dict = {}  # mix_id -> mix
+        self.current_tag = 'Hot'  # TODO do it another way
         self.webView = QtWebKit.QWebView()
         self.webView.setUrl(QtCore.QUrl('qrc:/resources/mixes.html'))
         self.webView.loadFinished.connect(self.finishLoading)
@@ -50,19 +50,35 @@ class BrowserTab(QtGui.QWidget):
 
     def finishLoading(self):
         self.web_load_finished = True
-        if self.mixes is not None:
+        if self.mixes:
             self.show_mixes()
 
     def mixes_loaded(self, mixes):
-        self.mixes = mixes
-        self.mixes_dict = {mix.id: mix for mix in mixes}
+        # TODO scroll to beginning
+        self.mixes[self.current_tag] = mixes  # attention: race possibility
+        self.mixes_dict.update({mix.id: mix for mix in mixes})
         if self.web_load_finished:
             self.show_mixes()
 
     def show_mixes(self):
+        self.clear_mixes()
         mainFrame = self.webView.page().mainFrame()
-        for i, mix in enumerate(self.mixes):
+        for i, mix in enumerate(self.mixes[self.current_tag]):  # attention: race possibility
             mainFrame.evaluateJavaScript("""this.addMixToList('%s', %d)""" % (mix.as_json(), i))
+
+    def clear_mixes(self):
+        mainFrame = self.webView.page().mainFrame()
+        mainFrame.evaluateJavaScript("""this.clearMixes()""")
+
+    def update_mixes(self, tag):
+        if tag == self.current_tag:
+            return
+        if tag in self.mixes:
+            self.current_tag = tag
+            self.show_mixes()
+            return
+        self.mainWindow.api_thread.request_mixes(tag=tag)
+        self.current_tag = tag
 
     @QtCore.pyqtSlot(int)
     def click(self, mix_id):
@@ -200,15 +216,16 @@ class MainWindow(QtGui.QMainWindow):
 
         self.current_track_label = QtGui.QLabel("Nothing")
 
-        self.browserTab = BrowserTab(self)
+        self.browserWidget = BrowserWidget(self)
 
         self.modeCombobox = QtGui.QComboBox()
         self.modeCombobox.addItem('Hot')
         self.modeCombobox.insertSeparator(1)
+        self.modeCombobox.activated[str].connect(self.browserWidget.update_mixes)
 
         mainLayout = QtGui.QVBoxLayout()
         mainLayout.addWidget(self.modeCombobox)
-        mainLayout.addWidget(self.browserTab)
+        mainLayout.addWidget(self.browserWidget)
         mainLayout.addWidget(self.current_track_label)
         mainLayout.addLayout(seekerLayout)
         mainLayout.addLayout(playbackLayout)

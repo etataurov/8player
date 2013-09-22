@@ -48,17 +48,17 @@ class EightTracksAPI:
         # what if we want to logout?
         return 'user_token' in self.config
 
-    def _get_mixes(self):
-        response_data = self._request('mixes.json')
+    def _get_mixes(self, params):
+        response_data = self._request('mixes.json', params)
         return response_data['mixes']
 
     def _get_play_token(self):
         response_data = self._request('sets/new.json')
         self.play_token = response_data.get('play_token')
 
-    def get_mixes(self):
+    def get_mixes(self, params):
         self._get_play_token()
-        return self._get_mixes()
+        return self._get_mixes(params)
 
     def get_tags(self):
         response_data = self._request('tags.json')

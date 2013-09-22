@@ -88,12 +88,12 @@ class TracksAPIThread(QtCore.QThread):
         self.request_queue.put(STOP)
         self.wait()
 
-    def request_mixes(self):
+    def request_mixes(self, **kwargs):
         def callback(params):
             mixes = [Mix(x, self) for x in params]
             self.mixes_ready.emit(mixes)
 
-        self.request_queue.put((self.tracks_api.get_mixes, [], callback))
+        self.request_queue.put((self.tracks_api.get_mixes, [kwargs], callback))
 
     def request_tags(self):
         def callback(params):
