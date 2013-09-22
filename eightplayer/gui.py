@@ -85,6 +85,7 @@ class BrowserWidget(QtGui.QWidget):
         self.mainWindow.mediaObject.stop()
         self.mainWindow.mediaObject.clearQueue()
         mix = self.mainWindow.current_mix = self.mixes_dict.get(mix_id)
+        self.mainWindow.next_track = None
         log.info("Selected: {}".format(mix))
         mix.play()
 
