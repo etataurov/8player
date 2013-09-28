@@ -150,7 +150,7 @@ class TracksAPIThread(QtCore.QThread):
 
     def _call_or_emit(self, action, result=None):
         if isinstance(action, QtCore.pyqtBoundSignal):
-            if result is None:
+            if result is None or isinstance(result, Exception):
                 action.emit()
             else:
                 action.emit(result)
