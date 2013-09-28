@@ -93,6 +93,7 @@ application = tornado.web.Application([
     (r"/sets/new.json", SetsHandler),
     (r"/sets/%s/play.json" % PLAY_TOKEN, PlayHandler),
     (r"/sets/%s/next.json" % PLAY_TOKEN, PlayHandler),
+    (r"/sets/%s/skip.json" % PLAY_TOKEN, PlayHandler),
     (r"/sets/%s/report.json" % PLAY_TOKEN, ReportHandler),
     (r"/(.+)", FileHandler),
 

@@ -117,6 +117,7 @@ class MainWindow(QtGui.QMainWindow):
         self.api_thread.authentication_fail.connect(self.dialog.show_error)
         self.api_thread.track_ready.connect(self.play_track)
         self.api_thread.next_track_ready.connect(self.enqueue_track)
+        self.api_thread.next_track_after_skip_ready.connect(self.play_next_track)
         self.api_thread.tags_ready.connect(self.update_combobox)
 
         # TODO change icon
@@ -142,6 +143,7 @@ class MainWindow(QtGui.QMainWindow):
             self.trayPlayAction.setEnabled(False)
             self.pauseAction.setEnabled(True)
             self.trayPauseAction.setEnabled(True)
+            self.skipAction.setEnabled(True)
 
         elif newState == Phonon.StoppedState:
             self.playAction.setEnabled(True)
@@ -187,6 +189,7 @@ class MainWindow(QtGui.QMainWindow):
 
         bar.addAction(self.playAction)
         bar.addAction(self.pauseAction)
+        bar.addAction(self.skipAction)
 
         self.seekSlider = Phonon.SeekSlider(self)
         self.seekSlider.setMediaObject(self.mediaObject)
@@ -264,15 +267,14 @@ class MainWindow(QtGui.QMainWindow):
             triggered=self.mediaObject.pause
         )
 
-        self.nextAction = QtGui.QAction(
+        self.skipAction = QtGui.QAction(
             self.style().standardIcon(QtGui.QStyle.SP_MediaSkipForward),
-            "Next", self, shortcut="Ctrl+N"
+            "Skip", self, shortcut="Ctrl+N", enabled=False,
+            triggered=self.skip_track
         )
 
-        self.previousAction = QtGui.QAction(
-            self.style().standardIcon(QtGui.QStyle.SP_MediaSkipBackward),
-            "Previous", self, shortcut="Ctrl+R"
-        )
+    def skip_track(self):
+        self.current_mix.skip()
 
     def update_combobox(self, tags):
         sorted_tags = [tag.name for tag in sorted(tags, key=lambda x: x.count, reverse=True)]
@@ -290,6 +292,12 @@ class MainWindow(QtGui.QMainWindow):
         self.next_track = track
         source = Phonon.MediaSource(QtCore.QUrl(track.url))
         self.mediaObject.enqueue(source)
+
+    def play_next_track(self, track):
+        self.mediaObject.stop()
+        self.mediaObject.clearQueue()
+        self.next_track = None
+        self.play_track(track)
 
     def check_login(self):
         if not self.api_thread.is_authenticated():

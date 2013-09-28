@@ -62,6 +62,7 @@ class TestTracWrapperMixes(BasicTestWrapper):
         self.api_thread.mixes_ready.connect(self.mixes_ready)
         self.api_thread.track_ready.connect(self.track_ready)
         self.api_thread.next_track_ready.connect(self.next_track_ready)
+        self.api_thread.next_track_after_skip_ready.connect(self.next_track_after_skip_ready)
 
     def mixes_ready(self, mixes):
         self.mixes = mixes
@@ -71,6 +72,9 @@ class TestTracWrapperMixes(BasicTestWrapper):
 
     def next_track_ready(self, track):
         self.next_track = track
+
+    def next_track_after_skip_ready(self, track):
+        self.next_track_after_skip = track
 
     def test_request_mixes(self):
         self.api_thread.request_mixes()
@@ -92,3 +96,10 @@ class TestTracWrapperMixes(BasicTestWrapper):
         QTest.qWait(500)
         assert self.next_track
         assert isinstance(self.next_track, Track)
+
+    def test_skip_track(self):
+        self.api_thread.tracks_api._get_play_token()
+        self.api_thread.skip_track(12345)
+        QTest.qWait(500)
+        assert self.next_track_after_skip
+        assert isinstance(self.next_track_after_skip, Track)

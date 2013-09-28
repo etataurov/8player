@@ -35,8 +35,9 @@ class Mix:
     def skip(self):
         """
         also checks that skip is possible
+        what if it is the last track in mix?
         """
-        pass
+        self.api_thread.skip_track(self.id)
 
     def as_json(self):
         return json.dumps(self.params).replace("'", "\\'")
@@ -77,6 +78,7 @@ class TracksAPIThread(QtCore.QThread):
     tags_ready = QtCore.pyqtSignal(list)
     track_ready = QtCore.pyqtSignal(Track)
     next_track_ready = QtCore.pyqtSignal(Track)
+    next_track_after_skip_ready = QtCore.pyqtSignal(Track)
     authenticated = QtCore.pyqtSignal()
     authentication_fail = QtCore.pyqtSignal()
 
@@ -125,6 +127,14 @@ class TracksAPIThread(QtCore.QThread):
             self.next_track_ready.emit(track)
 
         self.request_queue.put((self.tracks_api.next_track, [mix_id], callback))
+
+    #TODO refactor!
+    def skip_track(self, mix_id):
+        def callback(params):
+            track = Track(params, self)
+            self.next_track_after_skip_ready.emit(track)
+
+        self.request_queue.put((self.tracks_api.skip_track, [mix_id], callback))
 
     def report_track(self, track, mix_id):
         self.request_queue.put((self.tracks_api.report_track, [track.id, mix_id], None))
