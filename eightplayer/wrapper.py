@@ -1,6 +1,7 @@
 from queue import Queue
 from PyQt4 import QtCore
 import logging
+import traceback
 try:
     import simplejson as json
 except ImportError:
@@ -134,13 +135,27 @@ class TracksAPIThread(QtCore.QThread):
             track = Track(params, self)
             self.next_track_after_skip_ready.emit(track)
 
-        self.request_queue.put((self.tracks_api.skip_track, [mix_id], callback))
+        def errback(result):
+            # not cool to check status here
+            if result.response.status_code == 403:
+                log.info('Skip is not allowed')
+
+        self.request_queue.put((self.tracks_api.skip_track, [mix_id], (callback, errback)))
 
     def report_track(self, track, mix_id):
         self.request_queue.put((self.tracks_api.report_track, [track.id, mix_id], None))
 
     def is_authenticated(self):
         return self.tracks_api.authenticated
+
+    def _call_or_emit(self, action, result=None):
+        if isinstance(action, QtCore.pyqtBoundSignal):
+            if result is None:
+                action.emit()
+            else:
+                action.emit(result)
+        elif action is not None:
+            action(result)
 
     def run(self):
         while True:
@@ -154,16 +169,10 @@ class TracksAPIThread(QtCore.QThread):
                     action, errback = action
                 try:
                     resp = func(*args)
-                except Exception:
-                    if errback is not None:
-                        errback.emit()
-                        continue
-                    # TODO handle any exception
-                    raise
-                if isinstance(action, QtCore.pyqtBoundSignal):
-                    if resp is None:
-                        action.emit()
-                    else:
-                        action.emit(resp)
-                elif action is not None:
-                    action(resp)
+                except Exception as exc:
+                    log.error('Error during {} call'.format(func.__name__))
+                    log.error(traceback.format_exc())
+                    self._call_or_emit(errback, exc)
+                    continue
+                self._call_or_emit(action, resp)
+
