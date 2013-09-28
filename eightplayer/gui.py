@@ -148,7 +148,6 @@ class MainWindow(QtGui.QMainWindow):
         elif newState == Phonon.StoppedState:
             self.playAction.setEnabled(True)
             self.pauseAction.setEnabled(False)
-            self.timeLcd.display("00:00")
 
         elif newState == Phonon.PausedState:
             self.pauseAction.setEnabled(False)
@@ -161,7 +160,6 @@ class MainWindow(QtGui.QMainWindow):
             self.current_track = self.next_track
             self.next_track = None
         self.current_track_label.setText(self.current_track.get_title())
-        self.timeLcd.display('00:00')
         # we going to preload next track url right here
         self.current_mix.next()
 
@@ -205,12 +203,8 @@ class MainWindow(QtGui.QMainWindow):
         palette = QtGui.QPalette()
         palette.setBrush(QtGui.QPalette.Light, QtCore.Qt.darkGray)
 
-        self.timeLcd = QtGui.QLCDNumber()
-        self.timeLcd.setPalette(palette)
-
         seekerLayout = QtGui.QHBoxLayout()
         seekerLayout.addWidget(self.seekSlider)
-        seekerLayout.addWidget(self.timeLcd)
 
         playbackLayout = QtGui.QHBoxLayout()
         playbackLayout.addWidget(bar)
@@ -239,7 +233,6 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setCentralWidget(widget)
 
-        self.timeLcd.display("00:00")
         self.setWindowTitle("8tracks music player")
 
     def tick(self, time):
@@ -251,8 +244,6 @@ class MainWindow(QtGui.QMainWindow):
             # with phonon-backend-vlc tick is doubling
             # so it maybe called more than once
             self.current_track.report(self.current_mix.id)
-        displayTime = QtCore.QTime(0, (time / 60000) % 60, seconds)
-        self.timeLcd.display(displayTime.toString('mm:ss'))
 
     def setupActions(self):
         self.playAction = QtGui.QAction(
