@@ -120,8 +120,7 @@ class MainWindow(QtGui.QMainWindow):
         self.api_thread.next_track_after_skip_ready.connect(self.play_next_track)
         self.api_thread.tags_ready.connect(self.update_combobox)
 
-        # TODO change icon
-        self.tray_icon = QtGui.QSystemTrayIcon(self.style().standardIcon(QtGui.QStyle.SP_MediaVolume), self)
+        self.tray_icon = QtGui.QSystemTrayIcon(QtGui.QIcon(':/resources/icons/window.png'), self)
         self.setupSysTrayMenu()
         self.tray_icon.show()
 
@@ -196,9 +195,10 @@ class MainWindow(QtGui.QMainWindow):
         self.volumeSlider.setAudioOutput(self.audioOutput)
         self.volumeSlider.setSizePolicy(QtGui.QSizePolicy.Maximum,
                                         QtGui.QSizePolicy.Maximum)
+        self.volumeSlider.setMuteVisible(False)
 
         volumeLabel = QtGui.QLabel()
-        volumeLabel.setPixmap(QtGui.QPixmap('images/volume.png'))
+        volumeLabel.setPixmap(QtGui.QPixmap(':/resources/icons/volume.png').scaled(QtCore.QSize(20, 20)))
 
         palette = QtGui.QPalette()
         palette.setBrush(QtGui.QPalette.Light, QtCore.Qt.darkGray)
@@ -247,19 +247,19 @@ class MainWindow(QtGui.QMainWindow):
 
     def setupActions(self):
         self.playAction = QtGui.QAction(
-            self.style().standardIcon(QtGui.QStyle.SP_MediaPlay), "Play",
+            QtGui.QIcon(':/resources/icons/play.png'), "Play",
             self, shortcut="Ctrl+P", enabled=False,
             triggered=self.mediaObject.play
         )
 
         self.pauseAction = QtGui.QAction(
-            self.style().standardIcon(QtGui.QStyle.SP_MediaPause),
+            QtGui.QIcon(':/resources/icons/pause.png'),
             "Pause", self, shortcut="Ctrl+A", enabled=False,
             triggered=self.mediaObject.pause
         )
 
         self.skipAction = QtGui.QAction(
-            self.style().standardIcon(QtGui.QStyle.SP_MediaSkipForward),
+            QtGui.QIcon(':/resources/icons/skip.png'),
             "Skip", self, shortcut="Ctrl+N", enabled=False,
             triggered=self.skip_track
         )
@@ -348,6 +348,7 @@ class LoginForm(QtGui.QDialog):
 def main(config_filename="config.json", inspector=False):
     app = QtGui.QApplication(sys.argv)
     app.setApplicationName("8tracks Music Player")
+    app.setWindowIcon(QtGui.QIcon(':/resources/icons/window.png'))
     app.setQuitOnLastWindowClosed(True)
     window = MainWindow(config_filename=config_filename, inspector=inspector)
     window.show()

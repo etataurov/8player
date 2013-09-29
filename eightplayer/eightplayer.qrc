@@ -4,5 +4,10 @@
      <file>resources/jquery.min.js</file>
      <file>resources/handlebars.js</file>
      <file>resources/jquery.mousewheel.min.js</file>
+     <file>resources/icons/play.png</file>
+     <file>resources/icons/pause.png</file>
+     <file>resources/icons/skip.png</file>
+     <file>resources/icons/volume.png</file>
+     <file>resources/icons/window.png</file>
  </qresource>
  </RCC>
