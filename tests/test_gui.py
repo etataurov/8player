@@ -9,7 +9,7 @@ from eightplayer.gui import MainWindow
 TEST_CONFIG = {'api_key': '654321', 'service_url': 'http://127.0.0.1:8888/'}
 TEST_CONFIG_PATH = 'tests/test_config.json'
 
-skip_if_travis = pytest.mark.skipif(os.environ.get('TRAVIS') == 'true', reason='travis VM has no audio device')
+skip_if_travis = pytest.mark.skipif("os.environ.get('TRAVIS') == 'true'", reason='travis VM has no audio device')
 
 
 class TestTrackGUI:
