@@ -1,5 +1,6 @@
-import sys
+import os
 import json
+import pytest
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtTest import QTest
 from PyQt4.phonon import Phonon
@@ -8,11 +9,11 @@ from eightplayer.gui import MainWindow
 TEST_CONFIG = {'api_key': '654321', 'service_url': 'http://127.0.0.1:8888/'}
 TEST_CONFIG_PATH = 'tests/test_config.json'
 
+skip_if_travis = pytest.mark.skipif(os.environ.get('TRAVIS') == 'true', reason='travis VM has no audio device')
+
 
 class TestTrackGUI:
     def setup_method(self, method):
-        self.app = QtGui.QApplication(sys.argv)
-        self.app.setApplicationName("Test 8tracks Music Player")
         with open(TEST_CONFIG_PATH, 'w') as conf:
             json.dump(TEST_CONFIG, conf, indent=4)
         self.form = MainWindow(config_filename=TEST_CONFIG_PATH)
@@ -74,6 +75,7 @@ class TestTrackGUI:
 
     # TODO test actions should not working without authentication, do some separation
 
+    @skip_if_travis
     def test_tray_icon_menu_play_action(self):
         play_action = self.form.tray_icon.contextMenu().actions()[0]
         self.play_mix()
@@ -89,6 +91,7 @@ class TestTrackGUI:
         assert pause_action.text() == 'Pause'  # TODO i18n
         assert not pause_action.isEnabled()
 
+    @skip_if_travis
     def test_tray_icon_menu_pause_action(self):
         pause_action = self.form.tray_icon.contextMenu().actions()[1]
         self.play_mix()
@@ -118,6 +121,7 @@ class TestTrackGUI:
         mainFrame = self.form.browserWidget.webView.page().mainFrame()
         assert mainFrame.evaluateJavaScript("""$('div.mix').size()""") == 12
 
+    @skip_if_travis
     def test_skip_track(self):
         assert isinstance(self.form.skipAction, QtGui.QAction)
         assert not self.form.skipAction.isEnabled()

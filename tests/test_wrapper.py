@@ -1,6 +1,4 @@
-import sys
 import json
-from PyQt4 import QtGui, QtCore
 from PyQt4.QtTest import QTest
 from eightplayer.wrapper import TracksAPIThread, Track, Mix
 
@@ -13,8 +11,6 @@ class BasicTestWrapper:
     config = TEST_CONFIG
 
     def setup_method(self, method):
-        self.app = QtGui.QApplication(sys.argv)
-        self.app.setApplicationName("Test 8tracks Music Player")
         with open(TEST_CONFIG_PATH, 'w') as conf:
             json.dump(self.config, conf, indent=4)
         self.api_thread = TracksAPIThread(config_filename=TEST_CONFIG_PATH)
