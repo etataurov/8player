@@ -3,4 +3,3 @@ config.json
 __pycache__
 .idea
 tests/test_config.json
-test_server/test_music/*

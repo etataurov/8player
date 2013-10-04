@@ -4,7 +4,7 @@ import os
 import datetime
 import stagger
 
-MUSIC_DIR = 'test_music'
+MUSIC_DIR = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'test_music')
 PLAY_TOKEN = '12345'
 
 # TODO check api_key and user token in every request
@@ -19,11 +19,15 @@ def tracks_iterator():
 TRACKS = tracks_iterator()
 
 
+def real_file_path(filename):
+    return os.path.join(os.path.realpath(os.path.dirname(__file__)), filename)
+
+
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         # TODO get filename param
         self.set_header("Content-Type", 'application/json; charset=utf-8')
-        with open('mixes.json') as mixes:
+        with open(real_file_path('mixes.json')) as mixes:
             self.finish(mixes.read())
 
     def post(self):
@@ -32,16 +36,15 @@ class MainHandler(tornado.web.RequestHandler):
         password = self.get_argument('password')
         if login != 'user1' or password != '123':
             self.set_status(403)
-        with open('sessions.json') as sessions:
+        with open(real_file_path('sessions.json')) as sessions:
             self.finish(sessions.read())
-        print("successfully send")
 
 
 class TagsHandler(tornado.web.RequestHandler):
     def get(self):
         # TODO get filename param
         self.set_header("Content-Type", 'application/json; charset=utf-8')
-        with open('tags.json') as mixes:
+        with open(real_file_path('tags.json')) as mixes:
             self.finish(mixes.read())
 
 
@@ -60,7 +63,7 @@ class PlayHandler(tornado.web.RequestHandler):
     def get(self):
         mix_id = self.get_argument('mix_id')
         self.set_header("Content-Type", 'application/json; charset=utf-8')
-        with open('play.json') as play:
+        with open(real_file_path('play.json')) as play:
             self.finish(play.read() % self.next_track())
 
 
