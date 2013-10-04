@@ -99,7 +99,7 @@ class TestTrackGUI:
 
     def test_tags_list(self):
         assert self.form.modeCombobox.itemText(0) == 'Hot'
-        QTest.qWait(500)
+        QTest.qWait(2000)
         assert self.form.modeCombobox.count() == 28  # Hot, separator and 26 tags
 
     def test_tags_change(self):
@@ -107,14 +107,14 @@ class TestTrackGUI:
         QTest.qWait(100)  # wait for mixes
         assert 'Hot' in self.form.browserWidget.mixes
         self.form.browserWidget.update_mixes('sex')
-        QTest.qWait(100)
+        QTest.qWait(2000)
         assert self.form.browserWidget.current_tag == 'sex'
         assert 'sex' in self.form.browserWidget.mixes
         self.form.browserWidget.update_mixes('Hot')
 
     def test_mixes_count(self):
         self.form.api_thread.request_mixes()
-        QTest.qWait(100)  # wait for mixes
+        QTest.qWait(2000)  # wait for mixes
         mainFrame = self.form.browserWidget.webView.page().mainFrame()
         assert mainFrame.evaluateJavaScript("""$('div.mix').size()""") == 12
 
@@ -125,7 +125,7 @@ class TestTrackGUI:
         assert self.form.skipAction.isEnabled()
         track = self.form.current_track
         self.form.skipAction.trigger()
-        QTest.qWait(100)
+        QTest.qWait(2000)
         assert track != self.form.current_track
         assert self.form.mediaObject.state() == Phonon.PlayingState
 
@@ -133,6 +133,6 @@ class TestTrackGUI:
 
     def play_mix(self):
         self.form.api_thread.request_mixes()
-        QTest.qWait(100)
+        QTest.qWait(2000)
         self.form.browserWidget.click(2025587)  # mix_id from mixes.json
-        QTest.qWait(100)
+        QTest.qWait(2000)
