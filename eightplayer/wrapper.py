@@ -107,11 +107,17 @@ class TracksAPIThread(QtCore.QThread):
         self.request_queue.put((self.tracks_api.get_tags, [], callback))
 
     def authenticate(self, login, password):
+        def callback(*args):
+            self.authenticated.emit()
+
+        def errback(*args):
+            self.authentication_fail.emit()
+
         self.request_queue.put(
             (
                 self.tracks_api.authenticate,
                 [login, password],
-                (self.authenticated, self.authentication_fail)
+                (callback, errback)
             )
         )
 
@@ -148,13 +154,8 @@ class TracksAPIThread(QtCore.QThread):
     def is_authenticated(self):
         return self.tracks_api.authenticated
 
-    def _call_or_emit(self, action, result=None):
-        if isinstance(action, QtCore.pyqtBoundSignal):
-            if result is None or isinstance(result, Exception):
-                action.emit()
-            else:
-                action.emit(result)
-        elif action is not None:
+    def _call(self, action, result=None):
+        if action is not None:
             action(result)
 
     def run(self):
@@ -172,7 +173,7 @@ class TracksAPIThread(QtCore.QThread):
                 except Exception as exc:
                     log.error('Error during {} call'.format(func.__name__))
                     log.error(traceback.format_exc())
-                    self._call_or_emit(errback, exc)
+                    self._call(errback, exc)
                     continue
-                self._call_or_emit(action, resp)
+                self._call(action, resp)
 
