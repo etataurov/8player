@@ -17,12 +17,14 @@ class TestTrackGUI:
         with open(TEST_CONFIG_PATH, 'w') as conf:
             json.dump(TEST_CONFIG, conf, indent=4)
         self.form = MainWindow(config_filename=TEST_CONFIG_PATH)
+        self.form.audioOutput.setMuted(True)
         # TODO call check_login automatically
         self.form.check_login()
 
     def teardown_method(self, method):
         self.form.dialog.close()
         self.form.tray_icon.hide()
+        self.form.mediaObject.stop()
         self.form.close()
 
     def test_login_dialog(self):
