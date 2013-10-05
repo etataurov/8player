@@ -126,6 +126,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setupActions()
         self.setupUi()
+        self.setFixedSize(QtCore.QSize(600, 420))
         self.api_thread.request_tags()
 
     def stateChanged(self, newState, oldState):
@@ -161,9 +162,6 @@ class MainWindow(QtGui.QMainWindow):
         self.current_track_label.setText(self.current_track.get_title())
         # we going to preload next track url right here
         self.current_mix.next()
-
-    def sizeHint(self):
-        return QtCore.QSize(600, 300)
 
     def setupSysTrayMenu(self):
         menu = QtGui.QMenu(self)
