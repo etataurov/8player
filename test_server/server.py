@@ -24,13 +24,17 @@ def real_file_path(filename):
 
 
 class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        # TODO get filename param
+    def get(self, filename):
         self.set_header("Content-Type", 'application/json; charset=utf-8')
-        with open(real_file_path('mixes.json')) as mixes:
-            self.finish(mixes.read())
+        if filename in ('next.json', 'skip.json'):
+            filename = 'play.json'
+        with open(real_file_path(filename)) as json_file:
+            data = json_file.read()
+            if filename == 'play.json':
+                data = data % self.next_track()
+            self.finish(data)
 
-    def post(self):
+    def post(self, filename):
         self.set_header("Content-Type", 'application/json; charset=utf-8')
         login = self.get_argument('login')
         password = self.get_argument('password')
@@ -39,32 +43,16 @@ class MainHandler(tornado.web.RequestHandler):
         with open(real_file_path('sessions.json')) as sessions:
             self.finish(sessions.read())
 
-
-class TagsHandler(tornado.web.RequestHandler):
-    def get(self):
-        # TODO get filename param
-        self.set_header("Content-Type", 'application/json; charset=utf-8')
-        with open(real_file_path('tags.json')) as mixes:
-            self.finish(mixes.read())
+    def next_track(self):
+        filename = next(TRACKS)
+        track = stagger.read_tag(os.path.join(MUSIC_DIR, filename))
+        return {'filename': filename, 'title': track.title, 'artist': track.artist}
 
 
 class SetsHandler(tornado.web.RequestHandler):
     def get(self):
         self.write("""{"status": "200 OK", "errors": null, "api_version": 2, "api_warning": ["You didn't pass an API version, defaulting to api_version=2."], "notices": null, "play_token": "%s"}""" % PLAY_TOKEN)
         self.finish()
-
-
-class PlayHandler(tornado.web.RequestHandler):
-    def next_track(self):
-        filename = next(TRACKS)
-        track = stagger.read_tag(os.path.join(MUSIC_DIR, filename))
-        return {'filename': filename, 'title': track.title, 'artist': track.artist}
-
-    def get(self):
-        mix_id = self.get_argument('mix_id')
-        self.set_header("Content-Type", 'application/json; charset=utf-8')
-        with open(real_file_path('play.json')) as play:
-            self.finish(play.read() % self.next_track())
 
 
 class ReportHandler(tornado.web.RequestHandler):
@@ -90,14 +78,10 @@ class FileHandler(tornado.web.RequestHandler):
 
 
 application = tornado.web.Application([
-    (r"/sessions.json", MainHandler),
-    (r"/mixes.json", MainHandler),
-    (r"/tags.json", TagsHandler),
+    (r"/(\w+.json)", MainHandler),
     (r"/sets/new.json", SetsHandler),
-    (r"/sets/%s/play.json" % PLAY_TOKEN, PlayHandler),
-    (r"/sets/%s/next.json" % PLAY_TOKEN, PlayHandler),
-    (r"/sets/%s/skip.json" % PLAY_TOKEN, PlayHandler),
     (r"/sets/%s/report.json" % PLAY_TOKEN, ReportHandler),
+    (r"/sets/%s/(\w+.json)" % PLAY_TOKEN, MainHandler),
     (r"/(.+)", FileHandler),
 
 ], debug=True)
