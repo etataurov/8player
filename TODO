@@ -3,9 +3,7 @@ show info on success/on error
 logout
 show mixes better way
 when mix is playing - show only this mix info
-do it with tabs: mixes, current, search
 minimalistic UI
-logging
 show that we are waiting for smth
 refactor maybe
 think about thread stopping right
@@ -15,12 +13,7 @@ make track not seekable or make it working (on mac it works(QuickTime player bac
 preload next track after mix finished
 catch hotkeys
 load more mixes on scroll
-search by tags (with autocomplete)
-catch errors in wrapper
-close main window on login window close
 use one-style (pep8 or QT-style but I think it maybe different in separate modules)
-command line parameters for inspector and logging level
-show mixes inline with horizontal scrolling
 handle parse errors
 image loading is to slow (ajax loading)
 mixes may double

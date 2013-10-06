@@ -295,7 +295,6 @@ class MainWindow(QtGui.QMainWindow):
             self.api_thread.request_mixes()
 
     def authenticate(self, login, password):
-        #TODO handle auth errors
         self.api_thread.authenticate(login, password)
 
     def on_authenticated(self):
