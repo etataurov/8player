@@ -83,6 +83,7 @@ class TestTrackGUI:
         self.play_mix()
         assert not play_action.isEnabled()
         self.form.mediaObject.pause()
+        QTest.qWait(100)
         assert play_action.isEnabled()
         play_action.trigger()
         assert self.form.mediaObject.state() == Phonon.PlayingState
@@ -99,6 +100,7 @@ class TestTrackGUI:
         self.play_mix()
         assert pause_action.isEnabled()
         pause_action.trigger()
+        QTest.qWait(100)
         assert not pause_action.isEnabled()
         assert self.form.mediaObject.state() == Phonon.PausedState
 
