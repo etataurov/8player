@@ -8,7 +8,7 @@ before_install:
   - "sudo apt-get install python3-pyqt4 python3-pyqt4.phonon"
 virtualenv:
   system_site_packages: true
-install: "pip install tornado requests stagger python-coveralls --use-mirrors"
+install: "pip install tornado requests stagger pytest-cov python-coveralls --use-mirrors"
 before_script: "python test_server/server.py &> server.log &"
 script:
   - py.test -v --cov eightplayer --cov-report term-missing
