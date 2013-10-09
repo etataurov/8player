@@ -126,7 +126,7 @@ class MainWindow(QtGui.QMainWindow):
 
         self.setupActions()
         self.setupUi()
-        self.setFixedSize(QtCore.QSize(600, 420))
+        self.setFixedSize(QtCore.QSize(600, 430))
         self.api_thread.request_tags()
 
     def stateChanged(self, newState, oldState):
